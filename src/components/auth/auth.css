@@ -1,0 +1,134 @@
+/* --- المتغيرات الأساسية (نفس هوية الموقع) --- */
+:root {
+  --primary: #f59e0b;
+  --primary-hover: #d97706;
+  --bg-visual: #fff7ed; /* لون برتقالي فاتح جداً مريح للعين */
+  --slate-light: #f8fafc;
+  --border-color: #e2e8f0;
+}
+
+/* --- الحاوية الرئيسية (نظام الشاشة المنقسمة) --- */
+.auth-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #fff;
+}
+
+/* --- الجانب البصري (الأيسر - الثابت) --- */
+.auth-visual {
+  flex: 1.2;
+  background-color: var(--bg-visual);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  position: relative;
+}
+
+.visual-content {
+  text-align: center;
+  max-width: 480px;
+}
+
+.floating-img {
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: 40px;
+  /* تأثير ظل ناعم للصورة لتبدو عائمة */
+  filter: drop-shadow(0 20px 40px rgba(245, 158, 11, 0.2));
+  animation: floatAnim 4s ease-in-out infinite;
+}
+
+.visual-content h2 { font-size: 34px; font-weight: 800; color: #0f172a; margin-bottom: 15px; letter-spacing: -1px; }
+.visual-content p { color: #64748b; line-height: 1.6; font-size: 17px; }
+
+/* --- جانب النماذج (الأيمن - المتغير) --- */
+.auth-form-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.form-wrapper {
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-logo { height: 48px; margin-bottom: 50px; cursor: pointer; }
+
+.form-header h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 10px; letter-spacing: -1px; }
+.form-header p { color: #64748b; font-size: 15px; margin-bottom: 35px; }
+
+/* --- تنسيق الحقول (Inputs) الاحترافي --- */
+.input-group { margin-bottom: 24px; }
+.input-group label { display: block; font-size: 13px; font-weight: 800; color: #0f172a; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.input-field {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px; background: var(--slate-light);
+  border: 1px solid var(--border-color); border-radius: 14px;
+  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* تأثير عند الضغط داخل الحقل */
+.input-field:focus-within {
+  border-color: var(--primary);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+}
+
+.input-field input {
+  border: none; outline: none; background: transparent;
+  width: 100%; font-family: inherit; font-size: 15px;
+  font-weight: 600; color: #1e293b;
+}
+
+.input-field input::placeholder { color: #94a3b8; font-weight: 500; }
+.input-field svg { color: #94a3b8; transition: 0.3s; }
+.input-field:focus-within svg { color: var(--primary); }
+
+/* --- الأزرار --- */
+.btn-auth-submit {
+  width: 100%; background: var(--primary); color: white; border: none;
+  padding: 16px; border-radius: 14px; font-weight: 800; font-size: 16px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: 0.3s; margin-top: 10px;
+}
+
+.btn-auth-submit:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(245, 158, 11, 0.2);
+}
+
+/* --- التذييل (Footer) --- */
+.auth-footer {
+  text-align: center; margin-top: 30px; font-size: 15px;
+  color: #64748b; font-weight: 600;
+}
+
+.auth-footer a {
+  color: var(--primary); text-decoration: none;
+  font-weight: 800; margin-left: 5px;
+}
+
+.auth-footer a:hover { text-decoration: underline; }
+
+/* --- الحركات (Animations) --- */
+@keyframes floatAnim {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+/* --- التجاوب مع الموبايل --- */
+@media (max-width: 1024px) {
+  .auth-visual { padding: 40px; }
+  .visual-content h2 { font-size: 26px; }
+}
+
+@media (max-width: 850px) {
+  .auth-visual { display: none; } /* إخفاء الجانب البصري في الموبايل للتركيز على النموذج */
+  .auth-form-side { flex: 1; padding: 30px; }
+}

@@ -1,0 +1,109 @@
+:root {
+  --primary: #f39c12; /* لون الشعار الذهبي */
+  --dark: #1a1a1b;
+  --text-gray: #636e72;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background-color: #fff;
+  color: var(--dark);
+}
+
+/* Navbar - الإصلاح الشامل */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 6%; /* مسافة متوازنة من اليمين واليسار */
+  background: white;
+  border-bottom: 1px solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 80px; /* ارتفاع ثابت للنافبار ليصبح اللوجو متناسقاً */
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* مسافة بسيطة ونظيفة بين اللوجو والنص */
+}
+
+.logo-img {
+  height: 50px; /* حجم متناسق جداً مع الخطوط */
+  width: auto;
+}
+
+.brand-text {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--primary); /* نفس درجة اللوجو */
+  letter-spacing: -1px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 30px; /* مسافة كافية بين الروابط */
+  align-items: center;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--dark);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* زر الـ Login - ليصبح احترافياً */
+.btn-login-outline {
+  background: transparent;
+  border: 2px solid var(--dark);
+  color: var(--dark);
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 14px;
+}
+
+.btn-login-outline:hover {
+  background: var(--dark);
+  color: white;
+}
+
+/* زر الـ Signup */
+.btn-signup {
+  background: var(--primary);
+  color: white;
+  padding: 12px 25px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(243, 156, 18, 0.2);
+}
+
+/* Hero Section - تعديل الحجم */
+.hero {
+  padding: 80px 5%;
+  text-align: center;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.hero h1 {
+  font-size: 64px; /* حجم كبير لكن متناسق */
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+
+.hero p {
+  font-size: 18px;
+  color: var(--text-gray);
+  margin-bottom: 40px;
+}
