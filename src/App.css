@@ -40,16 +40,16 @@ body {
 
 .btn-login-outline {
   text-decoration: none;
-  color: var(--primary) !important; /* لون الخط برتقالي */
+  color: var(--primary) !important; 
   font-weight: 700;
   font-size: 14px;
   padding: 10px 22px;
-  border: 2px solid var(--primary); /* إطار برتقالي */
+  border: 2px solid var(--primary);
   border-radius: 12px;
   transition: all 0.3s ease;
 }
 
-/* عند مرور الماوس يتحول لزر برتقالي كامل مثل الذي بجانبه */
+
 .btn-login-outline:hover {
   background-color: var(--primary);
   color: white !important;
@@ -343,7 +343,7 @@ body {
 }
 
 /* --- Footer --- */
-/* --- الفوتر المطور الاحترافي --- */
+
 .footer-modern {
   background: #ffffff;
   padding: 80px 10% 40px;
@@ -394,10 +394,10 @@ body {
 .footer-links-list a:hover {
   color: var(--primary);
   padding-left: 5px;
-  /* حركة بسيطة عند الهوفر */
+ 
 }
 
-/* الأيقونات الاجتماعية */
+
 .social-links {
   display: flex;
   gap: 15px;
@@ -447,4 +447,305 @@ body {
   50% {
     transform: translateY(-15px);
   }
+}
+
+@media (max-width: 1024px) {
+  .hero-section {
+    grid-template-columns: 1fr; 
+    text-align: center;
+    padding: 60px 5%;
+  }
+
+  .hero-desc {
+    margin: 0 auto 30px;
+  }
+
+  .join-container {
+    margin: 0 auto 15px;
+  }
+
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+
+@media (max-width: 768px) {
+  /* Navbar */
+  .navbar {
+    height: auto;
+    padding: 15px 5%;
+    flex-direction: column; 
+    gap: 15px;
+  }
+
+  .nav-links {
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Hero */
+  .hero-title {
+    font-size: 38px !important; 
+  }
+
+  /* Sections */
+  .process-grid, 
+  .features-grid {
+    grid-template-columns: 1fr; 
+  }
+
+  .feature-card.large {
+    grid-column: span 1;
+  }
+
+  .process-section, 
+  .features-section, 
+  .cta-wrapper {
+    padding: 60px 5%;
+  }
+
+  /* CTA Section */
+  .premium-cta {
+    padding: 40px 20px;
+  }
+
+  .premium-cta h2 {
+    font-size: 28px !important;
+  }
+
+  /* Footer */
+  .footer-grid {
+    grid-template-columns: 1fr; 
+    text-align: center;
+    gap: 30px;
+  }
+
+  .footer-brand p {
+    margin: 15px auto;
+  }
+
+  .social-links {
+    justify-content: center;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+}
+
+
+@media (max-width: 480px) {
+  .screen-mockup {
+    height: 300px;
+  }
+  
+  .btn-primary, .btn-login-outline {
+    padding: 10px 15px;
+    font-size: 13px;
+  }
+}
+/* ============================================================
+   --- إصلاح التجاوب الشامل (Mobile Only) ---
+   ============================================================ */
+
+@media (max-width: 768px) {
+  /* 1. إصلاح عام: منع الروابط الزرقاء والنقاط السوداء */
+  .nav-links a, .footer-links-list a {
+    text-decoration: none !important;
+    color: var(--slate) !important;
+  }
+  
+  ul, .footer-links-list, .steps-list {
+    list-style: none !important;
+    padding: 0 !important;
+  }
+
+  /* 2. إصلاح الهيرو (Hero) */
+  .hero-section {
+    display: flex !important;
+    flex-direction: column !important;
+    text-align: center !important;
+    padding: 40px 20px !important;
+    height: auto !important;
+    min-height: auto !important;
+  }
+
+  .hero-title {
+    font-size: 32px !important; /* تصغير العنوان لكي لا ينقطع */
+    margin-bottom: 20px !important;
+  }
+
+  .join-container {
+    flex-direction: column !important;
+    max-width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .join-container input {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 10px;
+    width: 100%;
+  }
+
+  /* 3. إصلاح البطاقات (Cards) والـ Hover */
+  .process-grid, .features-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  .step-card {
+    padding: 25px !important;
+    transition: 0.3s !important;
+  }
+
+  /* إعادة تفعيل الـ Hover ليغير اللون */
+  .step-card:hover {
+    border-color: var(--primary) !important;
+    background: white !important;
+    transform: translateY(-5px) !important;
+  }
+
+  /* 4. إصلاح الفوتر (Footer) - ترتيب احترافي */
+  .footer-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: 30px !important;
+  }
+
+  .footer-brand {
+    margin-bottom: 20px;
+  }
+
+  .footer-brand img {
+    margin: 0 auto;
+  }
+
+  .footer-brand p {
+    margin: 15px auto !important;
+    max-width: 280px;
+  }
+
+  .social-links {
+    justify-content: center !important;
+    gap: 15px !important;
+  }
+
+  /* روابط الفوتر بجانب بعضها (اختياري) أو تحت بعضها منظمة */
+  .footer-links-list li {
+    margin-bottom: 10px !important;
+  }
+
+  .footer-bottom {
+    flex-direction: column !important;
+    gap: 15px;
+  }
+
+  /* 5. المنيو الجانبية (Hamburger) */
+  .mobile-menu-toggle {
+    display: block !important;
+  }
+
+  .nav-links {
+    display: none; 
+    flex-direction: column;
+    position: fixed;
+    top: 85px;
+    left: 0;
+    width: 100%;
+    background: white;
+    padding: 20px;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+  }
+
+  .nav-links.active {
+    display: flex !important;
+  }
+}
+
+/* إصلاحات اللمس للأجهزة المحمولة */
+@media (hover: none) {
+  .step-card:active {
+    border-color: var(--primary) !important;
+    background: #fffcf5 !important;
+  }
+}
+/* 1. هذا الكود لإخفاء الزر تماماً في شاشات الكمبيوتر (وضعه في بداية الملف أو وسطه) */
+.mobile-menu-toggle {
+    display: none !important; /* إخفاء إجباري في الكمبيوتر */
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    outline: none;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    display: flex !important;
+    flex-direction: row !important; /* هذا السطر سيجعلهم جنب بعض */
+    justify-content: space-between !important;
+    align-items: center !important;
+    height: 80px !important;
+    padding: 0 5% !important;
+  }
+
+  .mobile-menu-toggle {
+    display: block !important;
+    margin: 0 !important; /* حذف أي مسافات زائدة */
+  }
+
+  .nav-links {
+    /* كود القائمة المنسدلة يبقى كما هو ليظهر تحتهم */
+    display: none;
+    flex-direction: column;
+    position: fixed;
+    top: 80px;
+    left: 0;
+    width: 100%;
+    background: white;
+    padding: 30px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  }
+
+  .nav-links.active {
+    display: flex !important;
+  }
+  @media (max-width: 768px) {
+  /* جعل شبكة الفوتر عمودين */
+  .footer-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important; 
+    gap: 40px 20px !important;
+    text-align: center !important;
+  }
+
+  /* جعل القسم الأول (اللوجو والوصف) يأخذ العرض كاملاً ويتوسط الشاشة */
+  .footer-brand {
+    grid-column: span 2 !important;
+    margin-bottom: 20px !important;
+  }
+
+  /* لضمان توسيط الروابط تحت العناوين */
+  .footer-links-list {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    padding: 0 !important;
+  }
+
+  .footer-links-list li {
+    list-style: none !important;
+  }
+}
+
 }
