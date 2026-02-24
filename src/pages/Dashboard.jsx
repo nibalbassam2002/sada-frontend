@@ -14,7 +14,7 @@ import {
   MousePointer2, 
   Activity, 
   Star,
-  ArrowRight // تم إضافة هذه الأيقونة هنا لحل مشكلة الشاشة البيضاء
+  ArrowRight 
 } from 'lucide-react';
 import '../styles/Dashboard.css';
 
@@ -22,7 +22,6 @@ const Dashboard = () => {
   return (
     <div className="dashboard-wrapper fade-in">
       
-      {/* 1. Command Bar - Quick Actions */}
       <div className="command-bar">
         <div className="action-card primary">
           <div className="icon-box"><Plus size={20} /></div>
@@ -47,7 +46,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* 2. Key Performance Indicators (6 KPIs) */}
       <div className="kpi-strip">
         <div className="kpi-item"><span>Presentations</span><h3>42</h3></div>
         <div className="kpi-item"><span>Live Sessions</span><h3>128</h3></div>
@@ -57,10 +55,8 @@ const Dashboard = () => {
         <div className="kpi-item"><span>Avg Rating</span><h3>4.9/5</h3></div>
       </div>
 
-      {/* 3. Bento Grid - Organized Content */}
       <div className="bento-layout">
         
-        {/* Recent Sessions */}
         <div className="bento-card">
           <div className="card-head">
             <h4><Clock size={18} color="#6366f1" /> Recent Sessions</h4>
@@ -86,7 +82,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Audience Activity */}
         <div className="bento-card">
           <div className="card-head">
             <h4><Activity size={18} color="#10b981" /> Audience Activity</h4>
@@ -107,7 +102,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Top Highlight Card */}
         <div className="bento-card top-highlight">
            <div className="card-head">
               <h4><Trophy size={18} color="#f59e0b" /> Best Performing Session</h4>
@@ -122,9 +116,6 @@ const Dashboard = () => {
               </div>
            </div>
         </div>
-
-      
-
       </div>
     </div>
   );

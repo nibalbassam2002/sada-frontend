@@ -1,0 +1,300 @@
+
+
+.templates-top-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 30px;
+}
+
+.main-title {
+    font-size: 30px;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: -1px;
+}
+
+.main-subtitle {
+    color: #64748b;
+    margin-top: 8px;
+    font-size: 15px;
+}
+
+.import-action-btn {
+    background: #f59e0b;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.import-action-btn:hover {
+    background: #e4a111;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px -5px rgba(224, 185, 99, 0.3);
+}
+
+.navigation-tabs-row {
+    margin-bottom: 40px;
+}
+
+.tabs-pill-container {
+    background: #f1f1f1;
+    padding: 6px;
+    border-radius: 18px;
+    display: flex;
+    width: fit-content;
+    gap: 6px;
+}
+
+.nav-tab {
+    border: none;
+    background: transparent;
+    padding: 10px 24px;
+    border-radius: 14px;
+    font-weight: 700;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.3s;
+}
+
+.nav-tab.active {
+    background: white;
+    color: #f59e0b;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+}
+
+.templates-display-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+.modern-temp-card {
+    background: white;
+    border-radius: 28px;
+    border: 1px solid #f1f5f9;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modern-temp-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 30px 60px -12px rgba(0,0,0,0.12);
+}
+
+.card-visual-area {
+    height: 180px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.pattern-bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0.05;
+    background-image: radial-gradient(#000 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+.floating-icon-wrap {
+    width: 70px;
+    height: 70px;
+    background: white;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+
+.floating-icon-wrap svg { width: 32px; height: 32px; }
+
+.modern-temp-card.indigo .card-visual-area { background: #eef2ff; }
+.modern-temp-card.indigo .floating-icon-wrap { color: #6366f1; }
+
+.modern-temp-card.emerald .card-visual-area { background: #ecfdf5; }
+.modern-temp-card.emerald .floating-icon-wrap { color: #10b981; }
+
+.modern-temp-card.amber .card-visual-area { background: #fffbeb; }
+.modern-temp-card.amber .floating-icon-wrap { color: #f59e0b; }
+
+.card-content-area {
+    padding: 24px;
+}
+
+.category-label {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #94a3b8;
+    letter-spacing: 1px;
+}
+
+.template-name {
+    font-size: 19px;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 10px 0 25px;
+}
+
+.primary-use-btn {
+    width: 100%;
+    background: #f8fafc;
+    color: #475569;
+    border: 1.5px solid #f1f5f9;
+    padding: 14px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.modern-temp-card:hover .primary-use-btn {
+    background: #f59e0b;
+    color: white;
+    border-color: #f59e0b;
+    box-shadow: 0 10px 15px -5px rgba(245, 158, 11, 0.3);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.template-desc {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+.templates-visual-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.theme-preview-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    transition: 0.3s;
+}
+
+.theme-preview-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+
+.image-container {
+    position: relative;
+    aspect-ratio: 16 / 9; 
+    background: #f1f5f9;
+}
+
+.template-thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+}
+
+.hover-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    opacity: 0;
+    transition: 0.3s;
+    backdrop-filter: blur(2px);
+}
+
+.theme-preview-card:hover .hover-overlay {
+    opacity: 1;
+}
+
+.btn-use-now {
+    background: #f59e0b;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-preview-only {
+    background: white;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.theme-details {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.theme-title { font-size: 15px; font-weight: 700; color: #1e293b; }
+.theme-cat { font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 800; }
+/* تنسيق المعاينة الحية */
+.live-preview-container {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: white;
+    overflow: hidden;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.mini-render-wrapper {
+    /* نقوم بتكبير مساحة الرسم ثم تصغيرها بالـ Scale لتبدو كمعاينة */
+    width: 1000px; /* عرض شريحة افتراضي */
+    height: 562px; /* ارتفاع 16:9 */
+    transform: scale(0.32); /* تصغيرها لتناسب الكرت */
+    transform-origin: top left;
+    pointer-events: none; /* منع التفاعل داخل المعاينة */
+}
+
+/* في الشاشات الأصغر قد نحتاج لضبط الـ scale */
+@media (max-width: 1200px) {
+    .mini-render-wrapper { transform: scale(0.28); }
+}
+
+.theme-preview-card {
+    background: white;
+    border-radius: 20px;
+    border: 1.5px solid #f1f5f9;
+    overflow: hidden;
+    transition: 0.3s;
+}
+
+.theme-preview-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
+}

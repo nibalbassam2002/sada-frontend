@@ -47,10 +47,6 @@ const DashboardLayout = () => {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <button className="btn-new-session">
-              <PlusCircle size={20} /> <span>New Session</span>
-            </button>
-            
             <Bell size={22} color="#64748b" style={{cursor:'pointer'}} />
 
             <div className="profile-section" ref={menuRef} onClick={() => setIsMenuOpen(!isMenuOpen)}>

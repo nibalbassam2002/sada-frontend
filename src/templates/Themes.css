@@ -1,0 +1,465 @@
+.theme-master {
+    position: absolute;
+    inset: 0;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+/* Theme 1: Academic Blue */
+.t1-blue-top { position: absolute; top: 0; right: 0; width: 400px; height: 120px; background: #c5d9f9; clip-path: polygon(100% 0, 15% 0, 100% 100%); border-radius: 0 0 0 60px; }
+.t1-blue-bottom { position: absolute; bottom: 0; left: 0; width: 200px; height: 150px; background: #2b59b3; clip-path: polygon(0 0, 0 100%, 100% 100%); border-radius: 0 40px 0 0; }
+.t1-frame { position: absolute; inset: 40px; border: 1px solid #333; border-radius: 10px; }
+
+/* Theme 2: Soft Minimal */
+/* --- Case 2: Elegant Minimalist Theme --- */
+
+.t2-elegant-container {
+  position: absolute;
+  inset: 0;
+  background-color: #fffefd; /* لون الخلفية الكريمي */
+  overflow: hidden;
+}
+
+/* تصميم الخطوط الأربعة المتقاطعة */
+.t2-grid-group {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+}
+.t2-grid-group.top-left { top: 30px; left: 30px; }
+.t2-grid-group.bottom-right { 
+  bottom: 30px; 
+  right: 30px; 
+  transform: rotate(180deg); 
+}
+
+.t2-line-v {
+  position: absolute;
+  top: 0; left: 0;
+  width: 35px; height: 100%;
+  border-left: 1px solid #b89f81;
+  border-right: 1px solid #b89f81;
+  /* تكرار الخطوط لعمل 4 خطوط */
+  background: linear-gradient(90deg, transparent 45%, #b89f81 45%, #b89f81 55%, transparent 55%);
+  background-size: 12px 100%;
+  opacity: 0.6;
+}
+
+.t2-line-h {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 35px;
+  border-top: 1px solid #b89f81;
+  border-bottom: 1px solid #b89f81;
+  background: linear-gradient(180deg, transparent 45%, #b89f81 45%, #b89f81 55%, transparent 55%);
+  background-size: 100% 12px;
+  opacity: 0.6;
+}
+
+/* تصميم الدوائر المتداخلة */
+.t2-circles-wrapper {
+  position: absolute;
+  top: -30px;
+  right: -30px;
+}
+
+.t2-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: #8d765a; /* اللون البني */
+}
+
+.c1 { width: 100px; height: 100px; right: 60px; top: 60px; opacity: 0.6; }
+.c2 { width: 80px; height: 80px; right: 120px; top: 40px; opacity: 0.4; }
+.c3 { width: 60px; height: 60px; right: 40px; top: 130px; opacity: 0.5; }
+.c4 { width: 40px; height: 40px; right: 190px; top: 60px; opacity: 0.2; }
+.c5 { width: 20px; height: 20px; right: 50px; top: 180px; opacity: 0.7; }
+
+/* تصميم القوس (Arch) */
+.t2-arch-wrapper {
+  position: absolute;
+  bottom: 50px;
+  left: 50px;
+  width: 80px;
+  height: 120px;
+}
+
+.t2-arch-main {
+  position: absolute;
+  inset: 0;
+  border: 3px solid #8d765a;
+  border-bottom: none;
+  border-radius: 50px 50px 0 0;
+}
+
+.t2-arch-secondary {
+  position: absolute;
+  inset: 10px;
+  border: 1px solid #b89f81;
+  border-bottom: none;
+  border-radius: 40px 40px 0 0;
+  opacity: 0.7;
+}
+/* Theme 3: Bold & Professional (ألوان غامقة وواضحة) */
+.theme-3 { 
+    background: #fdfdfd; 
+    border: 1px solid #e2e8f0; /* إطار خارجي بسيط للشريحة */
+}
+
+/* شريط جانبي كحلي يعطي هيبة للتصميم */
+.t3-side-strip {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 8px;
+    height: 100%;
+    background: #1e3a8a; /* Navy Blue غامق */
+}
+
+/* ورقة الشجر العلوية - كحلي راكز */
+.t3-leaf-tr {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    width: 140px;
+    height: 140px;
+    transform: rotate(15deg);
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.1)); /* ظل خفيف لإبرازها */
+}
+
+/* ورقة الشجر السفلية - أخضر غامق */
+.t3-leaf-bl {
+    position: absolute;
+    bottom: 30px;
+    left: 40px;
+    width: 130px;
+    height: 130px;
+    transform: rotate(195deg);
+    opacity: 0.9; /* زدت الشفافية لتكون واضحة */
+}
+
+/* خط سفلي عريض وواضح */
+.t3-bottom-line {
+    position: absolute;
+    bottom: 40px;
+    right: 50px;
+    width: 150px;
+    height: 3px;
+    background: #1e3a8a;
+    border-radius: 2px;
+}
+
+/* نقاط شبكية بلون رمادي غامق */
+.t3-dark-grid {
+    position: absolute;
+    top: 50px;
+    left: 60px;
+    width: 60px;
+    height: 60px;
+    background-image: radial-gradient(#475569 1.5px, transparent 1.5px);
+    background-size: 12px 12px;
+    opacity: 0.6;
+}
+/* --- Case 4: Modern Minimalist Green (Group Project Style) --- */
+
+.theme-4 {
+  background: #ffffff; /* الخلفية بيضاء صريحة كما في الصورة */
+}
+
+.t4-modern-green-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+/* المنحنى الجانبي الكبير - أخضر المريمية (Sage Green) */
+.t4-bg-curve {
+  position: absolute;
+  top: -10%;
+  right: -25%;
+  width: 50%;
+  height: 120%;
+  background-color: #c3e4c7; /* أخضر فاتح راقي جداً */
+  border-radius: 50%;
+  z-index: 1;
+}
+
+/* الدوائر المصمتة - أخضر غابة داكن (Forest Green) */
+.t4-circle-accent {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-color: #8caf9c; /* لون زيتي رمادي فخم */
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.t4-circle-top {
+  top: 2%;
+  right: 6%;
+}
+
+.t4-circle-bottom {
+  bottom: 10%;
+  left: 5%;
+}
+
+/* نظام الخطوط والنقاط */
+.t4-line-group {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+}
+
+.t4-line-top {
+  top: 50px;
+  left: 0;
+  width: 320px;
+}
+
+.t4-line-bottom {
+  bottom: 50px;
+  right: 0;
+  width: 380px;
+}
+
+.t4-line-path {
+  flex: 1;
+  height: 1.5px;
+  background-color: #69927f;
+}
+
+.t4-line-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #69927f;
+  border-radius: 50%;
+}
+
+/* تنسيق النص ليتناسب مع الصورة المرفقة */
+.theme-4 .text-content {
+  position: relative;
+  z-index: 10;
+  padding-left: 80px;
+  padding-top: 150px;
+  text-align: left;
+}
+
+.theme-4 h1, .theme-4 .text-content h1 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #4a5568 !important; /* لون رمادي مزرق داكن للنص */
+  font-size: 5rem;
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+.theme-4 p, .theme-4 .text-content p {
+  color: #2d3748 !important;
+  font-size: 1.8rem;
+  margin-top: 5px;
+  font-weight: 400;
+}
+/* Theme 5: THE PERFECT BOHO (The one you adjusted) */
+.theme-5 { background: #ffffff; }
+.t5-circle-tr { position: absolute; top: -80px; right: -60px; width: 240px; height: 240px; background: #bdbc8e; border-radius: 50%; }
+.t5-circle-bl { position: absolute; bottom: -80px; left: -60px; width: 240px; height: 240px; background: #bdbc8e; border-radius: 50%; }
+.t5-arches { position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 130px; border: 2px solid #fff; border-radius: 60px 60px 0 0; }
+.t5-arches::before { content: ''; position: absolute; inset: 8px; border: 2px solid #fff; border-radius: 50px 50px 0 0; border-bottom: none; }
+.t5-flower-tr { position: absolute; bottom: -15px; left: -45px; width: 100px; transform: rotate(-25deg); z-index: 2; }
+.t5-flower-bl { position: absolute; top: -15px; right: -45px; width: 100px; transform: rotate(155deg); z-index: 2; }
+.t5-geo-top-left { position: absolute; top: 30px; left: 30px; width: 120px; height: 80px; border-left: 4px solid #bdbc8e; border-top: 4px solid #bdbc8e; }
+.t5-geo-bottom-right { position: absolute; bottom: 30px; right: 30px; width: 120px; height: 80px; border-right: 4px solid #bdbc8e; border-bottom: 4px solid #bdbc8e; }
+.t5-center-divider { position: absolute; bottom: 38%; left: 50%; transform: translateX(-50%); width: 320px; height: 1px; background: #555; opacity: 0.5; }
+
+
+/* --- Case 6: The Professional Dots & Lines Theme --- */
+
+.theme-6 {
+  background: #ffffff; /* لون الخلفية الهادئ من الصورة */
+}
+
+.t6-main-wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px; /* مسافة من حواف السلايد */
+  box-sizing: border-box;
+}
+
+.t6-decoration-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 25px; /* المسافة بين النقاط والخط */
+}
+
+/* النقاط الخمسة */
+.t6-dots-container {
+  display: flex;
+  gap: 12px; /* المسافة بين كل نقطة وأخرى */
+}
+
+.t6-solid-dot {
+  width: 15px;
+  height: 15px;
+  background-color: #aa5821; /* اللون الكحلي الداكن من الصورة */
+  border-radius: 50%;
+}
+
+/* الخط الأفقي الذي يمتد */
+.t6-horizontal-line {
+  flex-grow: 1; /* أهم خاصية: تجعل الخط يمتد ليأخذ باقي المساحة */
+  height: 2.5px;
+  background-color: #aa5821;
+}
+
+/* تنسيق النصوص ليكون في المنتصف تماماً */
+.theme-6 .text-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 80%;
+}
+
+.theme-6 h1, .theme-6 .text-content h1 {
+  font-family: 'Georgia', serif; /* خط سيريف كلاسيكي مثل الصورة */
+  color: #1a4352 !important;
+  font-size: 5rem;
+  font-style: italic; /* مائل كما في الصورة */
+  margin-bottom: 10px;
+}
+
+.theme-6 p, .theme-6 .text-content p {
+  color: #1a4352 !important;
+  font-size: 1.8rem;
+  letter-spacing: 1px;
+}
+/* Theme 7: Luxury Bronze Revisited (فخامة كلاسيكية غامقة) */
+.theme-7 { 
+    background: #ffffff; 
+}
+
+/* إطار خارجي رقيق جداً بلون ذهبي مطفي */
+.t7-outer-border {
+    position: absolute;
+    inset: 15px;
+    border: 1px solid #e9dccb;
+    z-index: 1;
+}
+
+/* الإطار الداخلي الذي طلبته (تغميق اللون وزيادة السمك) */
+.t9-elegant-frame .t7-inner-frame, /* لضمان التوافق */
+.t7-inner-frame { 
+    position: absolute; 
+    inset: 40px; 
+    border: 2px solid #8d7052; /* لون برونزي واضح */
+    opacity: 1; 
+    z-index: 2;
+}
+
+/* الزوايا المزدوجة الإبداعية */
+.t7-double-corner {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border: 3px solid #5d4037; /* اللون الأغمق */
+    z-index: 3;
+}
+
+/* توزيع الزوايا مع ترك مسافة (Gap) لتعطي شكلاً فنياً */
+.t7-double-corner.tl { top: 30px; left: 30px; border-right: none; border-bottom: none; }
+.t7-double-corner.tr { top: 30px; right: 30px; border-left: none; border-bottom: none; }
+.t7-double-corner.bl { bottom: 30px; left: 30px; border-right: none; border-top: none; }
+.t7-double-corner.br { bottom: 30px; right: 30px; border-left: none; border-top: none; }
+
+/* لمسة فنية: خطوط "بينسترايب" في زاوية واحدة للجمالية */
+.t7-decorative-element {
+    position: absolute;
+    bottom: 60px;
+    right: 60px;
+    width: 100px;
+    height: 40px;
+    border-top: 1px solid #8d7052;
+    border-bottom: 1px solid #8d7052;
+    opacity: 0.6;
+    transform: rotate(-45deg);
+}
+
+/* Theme 8: Dusty Rose Floral */
+.theme-8 { background: #fffcfc; color: #b89a9a; }
+
+.t8-flower-corner { position: absolute; bottom: 5px; right: -1px; width: 150px; }
+.t8-dots-decor { position: absolute; top: 70px; left: 70px; width: 70px; height: 70px; background-image: radial-gradient(#b89a9a 1.5px, transparent 1.5px); background-size: 10px 10px; }
+.t8-frame-line {
+  position: absolute;
+  inset: 50px;
+  border: 3px solid #d8c2c2;
+  
+  /* إضافة القناع هنا */
+  -webkit-mask-image: radial-gradient(circle at bottom right, transparent 100px, black 105px);
+  mask-image: radial-gradient(circle at bottom right, transparent 100px, black 105px);
+}
+/* Theme 9: Creative Tech Frame (إبداعي، تقني، وراكز) */
+.theme-9 { 
+    background: #ffffff;
+    overflow: hidden;
+}
+
+/* تأثير المثلثات مع الخطوط المائلة بالداخل */
+.t9-corner-wrapper {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    background: #a5e1e9;
+    z-index: 2;
+    overflow: hidden;
+}
+
+/* نمط الخطوط الإبداعي داخل المثلث */
+.t9-stripe-pattern {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(255, 255, 255, 0.3) 10px,
+        rgba(255, 255, 255, 0.3) 11px
+    );
+}
+
+/* توجيه المثلثات الأربعة */
+.t9-corner-wrapper.tl { top: 0; left: 0; clip-path: polygon(0 0, 100% 0, 0 100%); }
+.t9-corner-wrapper.tr { top: 0; right: 0; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+.t9-corner-wrapper.bl { bottom: 0; left: 0; clip-path: polygon(0 0, 0 100%, 100% 100%); }
+.t9-corner-wrapper.br { bottom: 0; right: 0; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+
+/* علامة (+) الإبداعية التي نراها في تصاميم الجرافيك الحديثة */
+.t9-floating-plus {
+    position: absolute;
+    font-size: 24px;
+    color: #a5e1e9;
+    font-weight: 300;
+    opacity: 0.6;
+}
+.t9-floating-plus.top-right { top: 160px; right: 40px; }
+.t9-floating-plus.bottom-left { bottom: 160px; left: 40px; }
+
+/* إطار رقيق جداً يوحي بالتركيز في المنتصف */
+.t9-center-focus {
+    position: absolute;
+    inset: 100px;
+    border: 1px solid rgba(165, 225, 233, 0.2);
+    pointer-events: none;
+}
+
+/* Theme 10: Executive Navy (The Hero) */
+.theme-10 { background: #ffffff; }
+.t10-sidebar { position: absolute; left: 0; top: 0; width: 12px; height: 100%; background: #b60000; }
+.t10-corner-design { position: absolute; top: 0; right: 0; width: 300px; height: 300px; background: #f3dbdb; clip-path: polygon(100% 0, 0 0, 100% 100%); }

@@ -1,35 +1,30 @@
-import React, { useState } from 'react'; // أضفنا useState هنا
+import React, { useState } from 'react'; 
 import { Link } from 'react-router-dom';
 import '../App.css';
 import logo from '../assets/logo.png';
 import { 
   Users, Radio, ChevronLeft, ChevronRight, Settings, Layout,
   Smartphone, Plus, Zap, ShieldCheck, Download, Sparkles, Mail,
-  Menu, X // أضفنا أيقونات المنيو والإغلاق من lucide
+  Menu, X 
 } from 'lucide-react';
 import { Twitter, Linkedin, Instagram } from 'lucide-react';
 
 const LandingPage = () => {
-  // 1. حالة للتحكم في القائمة (مفتوحة أو مغلقة)
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // دالة لإغلاق القائمة عند الضغط على أي رابط
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
 
   return (
     <div className="main-wrapper">
       
-      {/* 1. Navbar المطور */}
       <nav className="navbar" style={{ position: 'sticky', top: 0, zIndex: 1000 }}>
         <img src={logo} alt="SADA" style={{height: '60px'}} />
         
-        {/* زر البورجر - يظهر فقط في الموبايل عبر CSS */}
         <button className="mobile-menu-toggle" onClick={toggleMenu}>
           {isMenuOpen ? <X size={28} color="var(--dark)" /> : <Menu size={28} color="var(--dark)" />}
         </button>
 
-        {/* القائمة: تأخذ كلاس 'active' عندما تكون isMenuOpen تساوي true */}
         <div className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
           <a href="#how" onClick={closeMenu}>How it works</a>
           <a href="#features" onClick={closeMenu}>Features</a>
@@ -38,7 +33,6 @@ const LandingPage = () => {
         </div>
       </nav>
 
-      {/* 2. Hero Section */}
       <section className="hero-section">
         <div className="hero-text-content">
           <div style={{display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary)', fontWeight: 800, fontSize: '12px', marginBottom: '15px'}}>
@@ -87,7 +81,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* 3. Process Section */}
       <section id="how" className="process-section">
         <h2 style={{fontSize: '42px', fontWeight: 800, letterSpacing: '-1.5px'}}>Experience seamless interaction</h2>
         <p style={{color: 'var(--slate)', fontSize: '18px', marginTop: '10px'}}>Connecting presenters and audiences in real-time.</p>
@@ -121,7 +114,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* 4. Bento Features Grid */}
       <section id="features" className="features-section">
         <div style={{textAlign: 'center', maxWidth: '600px', margin: '0 auto'}}>
           <span style={{color: 'var(--primary)', fontWeight: 800, fontSize: '12px', letterSpacing: '2px'}}>CORE CAPABILITIES</span>
@@ -151,7 +143,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* 5. Premium CTA */}
       <section className="cta-wrapper">
         <div className="premium-cta">
           <div className="cta-glow"></div>
@@ -163,7 +154,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* 6. Footer */}
        <footer className="footer-modern">
         <div className="footer-grid">
           <div className="footer-brand">

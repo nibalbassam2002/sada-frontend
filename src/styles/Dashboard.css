@@ -23,10 +23,10 @@ body {
   background: linear-gradient(135deg, #fcfcfd 0%, #fffbf5 100%);
 }
 
-/* --- Logo Section --- */
+
 .sidebar-logo-container {
   padding: 30px 20px;
-  margin-bottom: 0px; /* مسافة إضافية تحت اللوجو */
+  margin-bottom: 0px;
   position: relative;
   display: flex;
   align-items: center;
@@ -59,7 +59,6 @@ body {
   100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
 }
 
-/* --- Sidebar Modern Light --- */
 .sidebar-modern {
   width: 280px;
   background: white;
@@ -71,9 +70,9 @@ body {
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 16px; /* زيادة المسافة بين الأيقونة والنص */
-  padding: 14px 25px; /* زيادة الحشوة الداخلية */
-  margin: 8px 20px; /* زيادة المسافة بين العناصر (Vertical Spacing) */
+  gap: 16px; 
+  padding: 14px 25px;
+  margin: 8px 20px;
   text-decoration: none;
   color: var(--text-muted);
   font-size: 14px;
@@ -82,7 +81,6 @@ body {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* الهوفر الطبيعي (برتقالي) */
 .nav-item:hover {
   background: var(--primary-soft);
   color: var(--primary);
@@ -90,29 +88,35 @@ body {
 }
 
 .nav-item.active {
-  background: var(--primary);
-  color: white;
-  box-shadow: 0 10px 20px -5px rgba(245, 158, 11, 0.3);
+  background: var(--primary-soft); 
+  color: var(--primary);
+  border-right: 4px solid var(--primary);
+  border-radius: 14px 0 0 14px; 
+  box-shadow: none; 
+  font-weight: 700;
 }
 
-/* --- جعل زر تسجيل الخروج في السايدبار أحمر بشكل دائم --- */
+[dir="rtl"] .nav-item.active {
+  border-right: none;
+  border-left: 4px solid var(--primary);
+  border-radius: 0 14px 14px 0;
+}
+
 .nav-item.logout-sidebar {
-  color: #ef4444 !important; /* اللون الأحمر للنص بشكل دائم */
-  font-weight: 700; /* جعل الخط أغمق قليلاً ليبرز */
+  color: #ef4444 !important; 
+  font-weight: 700;
 }
 
-/* تلوين الأيقونة باللون الأحمر بشكل دائم */
+
 .nav-item.logout-sidebar svg {
   color: #ef4444 !important;
 }
 
-/* تأثير الهوفر لزر تسجيل الخروج (ليصبح أكثر وضوحاً عند لمسه) */
 .nav-item.logout-sidebar:hover {
-  background: #fef2f2 !important; /* خلفية حمراء باهتة جداً عند المرور */
+  background: #fef2f2 !important; 
   transform: translateX(8px);
 }
 
-/* --- Navbar Fixed Glass --- */
 .top-navbar {
   height: 85px;
   padding: 0 40px;
@@ -166,7 +170,6 @@ body {
   box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
 }
 
-/* --- Profile Section & Dropdown --- */
 .profile-section {
   position: relative;
   display: flex;
@@ -239,14 +242,12 @@ body {
 
 .dropdown-divider { height: 1px; background: #f1f5f9; margin: 8px 0; }
 
-/* --- Content Transitions --- */
 .page-content { animation: slideUp 0.6s ease-out; }
 
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
-/* --- Dashboard Wrapper & Animations --- */
 .dashboard-wrapper {
   padding: 10px 0;
   max-width: 1300px;
@@ -262,7 +263,6 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- 1. Quick Actions (Command Bar) --- */
 .command-bar {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -297,7 +297,6 @@ body {
   justify-content: center;
 }
 
-/* ألوان الأيقونات لكل نوع */
 .action-card.primary .icon-box { background: #fff7ed; color: var(--primary); }
 .action-card.secondary .icon-box { background: #eef2ff; color: #6366f1; }
 .action-card.report .icon-box { background: #ecfdf5; color: #10b981; }
@@ -305,7 +304,6 @@ body {
 .action-info h5 { font-size: 15px; font-weight: 800; margin: 0; color: var(--text-dark); }
 .action-info p { font-size: 12px; color: var(--text-muted); margin: 4px 0 0; }
 
-/* --- 2. KPI Strip (The 6 Stats) --- */
 .kpi-strip {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -335,7 +333,6 @@ body {
 
 
 
-/* --- 3. Bento Grid Layout --- */
 .bento-layout {
   display: grid;
   grid-template-columns: 1.6fr 1fr;
@@ -374,7 +371,6 @@ body {
 
 .link-btn:hover { background: var(--primary-soft); }
 
-/* Recent Sessions Rows */
 .row-item {
   display: flex;
   justify-content: space-between;
@@ -391,7 +387,6 @@ body {
 .stat-val { font-size: 16px; font-weight: 800; color: var(--primary); display: block; }
 .stat-lbl { font-size: 9px; font-weight: 800; color: var(--text-muted); }
 
-/* Activity Progress Bars */
 .metric-box { margin-bottom: 22px; }
 .metric-info { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; font-weight: 700; }
 .bar-track { height: 8px; background: #f1f5f9; border-radius: 10px; overflow: hidden; }
@@ -407,16 +402,14 @@ body {
 }
 .tiny-label { font-size: 10px; font-weight: 800; color: var(--text-muted); }
 
-/* Smart Insights Dark Card */
 .dark-insight {
-  background: #0f172a !important; /* لون كحلي فاخر */
+  background: #0f172a !important; 
   color: white;
 }
 
 .insight-bubble p { margin: 0; }
 .insight-footer:hover { color: white !important; opacity: 0.8; }
 
-/* Highlight Card */
 .top-highlight {
   background: linear-gradient(to right, #ffffff, #fffdfa);
 }
