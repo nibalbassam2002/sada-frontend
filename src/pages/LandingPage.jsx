@@ -1,25 +1,56 @@
-import React, { useState } from 'react'; 
-import { Link } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react'; 
+import { Link, useNavigate } from 'react-router-dom';
 import '../App.css';
 import logo from '../assets/logo.png';
+import defAvatarImg from '../assets/def-image.png';
 import { 
   Users, Radio, ChevronLeft, ChevronRight, Settings, Layout,
   Smartphone, Plus, Zap, ShieldCheck, Download, Sparkles, Mail,
-  Menu, X 
+  Menu, X, ChevronDown, User, LogOut, LayoutDashboard
 } from 'lucide-react';
 import { Twitter, Linkedin, Instagram } from 'lucide-react';
 
 const LandingPage = () => {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
+  const toggleUserMenu = () => setIsUserMenuOpen(!isUserMenuOpen);
+  
+  const token = localStorage.getItem('token');
+  const userData = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+
+  // إغلاق القائمة المنسدلة عند النقر خارجها
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate('/');
+    window.location.reload(); // لإعادة تحديث واجهة المستخدم
+  };
+
+  // تنسيق اسم المستخدم المختصر
+  const getUserDisplayName = () => {
+    const name = userData?.name || userData?.email?.split('@')[0] || 'User';
+    return name.split(' ')[0];
+  };
 
   return (
     <div className="main-wrapper">
       
       <nav className="navbar" style={{ position: 'sticky', top: 0, zIndex: 1000 }}>
-        <img src={logo} alt="SADA" style={{height: '60px'}} />
+        <img src={logo} alt="SADA" style={{height: '60px', cursor: 'pointer'}} onClick={() => navigate('/')} />
         
         <button className="mobile-menu-toggle" onClick={toggleMenu}>
           {isMenuOpen ? <X size={28} color="var(--dark)" /> : <Menu size={28} color="var(--dark)" />}
@@ -28,11 +59,46 @@ const LandingPage = () => {
         <div className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
           <a href="#how" onClick={closeMenu}>How it works</a>
           <a href="#features" onClick={closeMenu}>Features</a>
-          <Link to="/login" className="btn-login-outline" onClick={closeMenu}>Login</Link>
-          <Link to="/register" className="btn-primary" onClick={closeMenu}>Get Started Free</Link>
+          
+          {token && userData ? (
+            /* --- القائمة المنسدلة للمستخدم المسجل --- */
+            <div className="user-menu-container" ref={userMenuRef}>
+              <div className="user-menu-trigger" onClick={toggleUserMenu}>
+                <div className="avatar-circle-sm">
+                  {userData.name?.charAt(0).toUpperCase() || 'U'}
+                </div>
+                <span className="user-label-name">{getUserDisplayName()}</span>
+                <ChevronDown size={14} className={`chevron-anim ${isUserMenuOpen ? 'rotated' : ''}`} />
+              </div>
+              
+              {isUserMenuOpen && (
+                <div className="user-dropdown-v2 fade-in">
+                  <div className="dropdown-user-info">
+                    <p className="d-name">{userData.name}</p>
+                    <p className="d-email">{userData.email}</p>
+                  </div>
+                  <div className="d-divider"></div>
+                  <Link to="/dashboard" className="d-item" onClick={closeMenu}>
+                    <LayoutDashboard size={16} /> <span>My Dashboard</span>
+                  </Link>
+                  <div className="d-divider"></div>
+                  <button className="d-item logout-red" onClick={handleLogout}>
+                    <LogOut size={16} /> <span>Sign Out</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* --- أزرار الزوار --- */
+            <div className="guest-auth-group">
+              <Link to="/login" className="btn-login-outline" onClick={closeMenu}>Login</Link>
+              <Link to="/register" className="btn-primary" onClick={closeMenu}>Get Started Free</Link>
+            </div>
+          )}
         </div>
       </nav>
 
+      {/* باقي السكاشن كما هي بدون أي تغيير */}
       <section className="hero-section">
         <div className="hero-text-content">
           <div style={{display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary)', fontWeight: 800, fontSize: '12px', marginBottom: '15px'}}>
@@ -149,7 +215,9 @@ const LandingPage = () => {
           <h2 style={{position: 'relative'}}>Make your next session <br/> unforgettable.</h2>
           <p style={{position: 'relative'}}>Join 10,000+ presenters worldwide who trust SADA.</p>
           <div style={{position: 'relative', display: 'flex', gap: '15px', justifyContent: 'center'}}>
-             <Link to="/register" className="btn-primary" style={{padding: '16px 40px', fontSize: '15px', textDecoration: 'none'}}>Create My First Session</Link>
+             <Link to={token ? "/dashboard" : "/register"} className="btn-primary" style={{padding: '16px 40px', fontSize: '15px', textDecoration: 'none'}}>
+               {token ? "Go to My Dashboard" : "Create My First Session"}
+             </Link>
           </div>
         </div>
       </section>

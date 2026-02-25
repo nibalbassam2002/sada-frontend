@@ -1,27 +1,27 @@
 import React from 'react';
-import { 
-  Plus, 
-  PlayCircle, 
-  Download, 
-  Clock, 
-  Trophy, 
-  MessageSquare, 
-  BarChart3, 
-  Sparkles, 
-  Smartphone, 
-  ChevronRight, 
-  Users, 
-  MousePointer2, 
-  Activity, 
+import {
+  Plus,
+  PlayCircle,
+  Download,
+  Clock,
+  Trophy,
+  MessageSquare,
+  BarChart3,
+  Sparkles,
+  Smartphone,
+  ChevronRight,
+  Users,
+  MousePointer2,
+  Activity,
   Star,
-  ArrowRight 
+  ArrowRight
 } from 'lucide-react';
 import '../styles/Dashboard.css';
 
 const Dashboard = () => {
   return (
     <div className="dashboard-wrapper fade-in">
-      
+
       <div className="command-bar">
         <div className="action-card primary">
           <div className="icon-box"><Plus size={20} /></div>
@@ -56,29 +56,29 @@ const Dashboard = () => {
       </div>
 
       <div className="bento-layout">
-        
+
         <div className="bento-card">
           <div className="card-head">
             <h4><Clock size={18} color="#6366f1" /> Recent Sessions</h4>
             <button className="link-btn">View All</button>
           </div>
           <div className="session-rows">
-             {[
-               { title: "Weekly Tech Sync", date: "Today, 10:00 AM", users: 142, eng: "98%" },
-               { title: "Product Roadmap Q3", date: "Yesterday", users: 85, eng: "92%" },
-               { title: "UI/UX Feedback", date: "24 Feb 2024", users: 210, eng: "95%" }
-             ].map((item, index) => (
-               <div key={index} className="row-item">
-                 <div className="row-main">
-                    <h5>{item.title}</h5>
-                    <p>{item.date} • {item.users} Participants</p>
-                 </div>
-                 <div className="row-stat">
-                    <span className="stat-val">{item.eng}</span>
-                    <span className="stat-lbl">ENGAGEMENT</span>
-                 </div>
-               </div>
-             ))}
+            {[
+              { title: "Weekly Tech Sync", date: "Today, 10:00 AM", users: 142, eng: "98%" },
+              { title: "Product Roadmap Q3", date: "Yesterday", users: 85, eng: "92%" },
+              { title: "UI/UX Feedback", date: "24 Feb 2024", users: 210, eng: "95%" }
+            ].map((item, index) => (
+              <div key={index} className="row-item">
+                <div className="row-main">
+                  <h5>{item.title}</h5>
+                  <p>{item.date} • {item.users} Participants</p>
+                </div>
+                <div className="row-stat">
+                  <span className="stat-val">{item.eng}</span>
+                  <span className="stat-lbl">ENGAGEMENT</span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -87,35 +87,36 @@ const Dashboard = () => {
             <h4><Activity size={18} color="#10b981" /> Audience Activity</h4>
           </div>
           <div className="activity-metrics">
-             <div className="metric-box">
-                <div className="metric-info"><span>Questions Asked</span><span>850</span></div>
-                <div className="bar-track"><div className="bar-fill blue" style={{ width: '70%' }}></div></div>
-             </div>
-             <div className="metric-box">
-                <div className="metric-info"><span>Participation Rate</span><span>92%</span></div>
-                <div className="bar-track"><div className="bar-fill green" style={{ width: '92%' }}></div></div>
-             </div>
-             <div className="best-type-box">
-                <span className="tiny-label">MOST ACTIVE TYPE</span>
-                <h5 style={{fontSize: '14px', marginTop: '5px', fontWeight: 700}}>Multiple Choice Polls (65%)</h5>
-             </div>
+            <div className="metric-box">
+              <div className="metric-info"><span>Questions Asked</span><span>850</span></div>
+              <div className="bar-track"><div className="bar-fill blue" style={{ width: '70%' }}></div></div>
+            </div>
+            <div className="metric-box">
+              <div className="metric-info"><span>Participation Rate</span><span>92%</span></div>
+              <div className="bar-track"><div className="bar-fill green" style={{ width: '92%' }}></div></div>
+            </div>
+            <div className="best-type-box">
+              <span className="tiny-label">MOST ACTIVE TYPE</span>
+              <h5 style={{ fontSize: '14px', marginTop: '5px', fontWeight: 700 }}>Multiple Choice Polls (65%)</h5>
+            </div>
           </div>
         </div>
 
         <div className="bento-card top-highlight">
-           <div className="card-head">
-              <h4><Trophy size={18} color="#f59e0b" /> Best Performing Session</h4>
-           </div>
-           <div className="highlight-content" style={{display: 'flex', gap: '20px', alignItems: 'center'}}>
-              <div className="award-icon" style={{width: '60px', height: '60px', borderRadius: '16px', background: '#fff7ed', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                <BarChart3 size={28} />
-              </div>
-              <div className="highlight-info">
-                 <h5 style={{fontSize: '16px', fontWeight: 700}}>Digital Marketing 101</h5>
-                 <p style={{fontSize: '13px', color: '#64748b', marginTop: '4px'}}>4.2k Lifetime Answers • 99% Satisfaction</p>
-              </div>
-           </div>
-        </div>
+   <div className="card-head">
+      <h4><Trophy size={18} color="#f59e0b" /> Best Performing Session</h4>
+   </div>
+   {/* تأكد أن هذا الجزء نظيف ولا يوجد به نصوص الشرح السابقة */}
+   <div className="highlight-content" style={{display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap'}}>
+      <div className="award-icon" style={{width: '60px', height: '60px', borderRadius: '16px', background: '#fff7ed', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <BarChart3 size={28} />
+      </div>
+      <div className="highlight-info">
+         <h5 style={{fontSize: '16px', fontWeight: 700}}>Digital Marketing 101</h5>
+         <p style={{fontSize: '13px', color: '#64748b', marginTop: '4px'}}>4.2k Lifetime Answers • 99% Satisfaction</p>
+      </div>
+   </div>
+</div>
       </div>
     </div>
   );
