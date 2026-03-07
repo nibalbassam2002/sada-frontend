@@ -26,6 +26,7 @@ const ArtisticRose = ({ className }) => (
 );
 
 const ThemeManager = ({ themeId }) => {
+  if (themeId === 0) return null;
   const renderShapes = () => {
     switch (themeId) {
       case 1: return (
