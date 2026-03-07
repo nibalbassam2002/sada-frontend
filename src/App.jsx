@@ -11,6 +11,7 @@ import Presentations from './pages/Presentations';
 import Templates from './pages/Templates'; 
 import Editor from './pages/Editor'; 
 
+
 // استيراد أنظمة حماية المسارات
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import PublicRoute from './components/auth/PublicRoute'; // هذا هو المكون الجديد
