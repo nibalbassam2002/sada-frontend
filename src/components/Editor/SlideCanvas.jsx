@@ -3,11 +3,11 @@ import React from 'react';
 import { Languages, Monitor } from 'lucide-react';
 import { useEditor } from './EditorContext';
 import SlideRenderer from './SlideRenderer';
-import ShapeLayer from './Elements/ShapeLayer';
 import TableLayer from './Elements/TableLayer';
 import ImageLayer from './Elements/ImageLayer';
 import NotesPanel from './Panels/NotesPanel';
 import ThemeManager from '../../templates/ThemeManager';
+import { FaStar, FaHeart, FaArrowUp, FaSquare, FaCircle } from 'react-icons/fa';
 
 const SlideCanvas = () => {
   const {
@@ -87,8 +87,52 @@ const SlideCanvas = () => {
           <SlideRenderer slide={currentSlide} />
         </div>
 
-        {/* Layers */}
-        <ShapeLayer shapes={shapes} selectedShape={selectedShape} setSelectedShape={setSelectedShape} />
+        {/* Shape Layer - عرض الأشكال مباشرة */}
+        {shapes && shapes.map(shape => {
+          let IconComponent = null;
+          
+          if (shape.type === 'star') IconComponent = FaStar;
+          else if (shape.type === 'heart') IconComponent = FaHeart;
+          else if (shape.type === 'arrow') IconComponent = FaArrowUp;
+          else if (shape.type === 'square') IconComponent = FaSquare;
+          else if (shape.type === 'circle') IconComponent = FaCircle;
+
+          return (
+            <div
+              key={shape.id}
+              style={{
+                position: 'absolute',
+                left: shape.x,
+                top: shape.y,
+                width: shape.width || 100,
+                height: shape.height || 100,
+                backgroundColor: shape.fill || 'transparent',
+                borderRadius: shape.type === 'circle' ? '50%' : 
+                             shape.type === 'triangle' ? '0' : '8px',
+                clipPath: shape.type === 'triangle' ? 'polygon(50% 0%, 0% 100%, 100% 100%)' : 'none',
+                border: selectedShape === shape.id ? '3px solid #f59e0b' : shape.outline ? `2px solid ${shape.outline}` : 'none',
+                transform: `rotate(${shape.rotation || 0}deg)`,
+                opacity: (shape.opacity || 100) / 100,
+                pointerEvents: 'auto',
+                cursor: 'move',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: shape.fill || '#f59e0b',
+                fontSize: '40px',
+                zIndex: selectedShape === shape.id ? 100 : 1
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedShape(shape.id);
+              }}
+            >
+              {IconComponent && <IconComponent />}
+              {shape.text && <span style={{ fontSize: '14px', color: '#fff' }}>{shape.text}</span>}
+            </div>
+          );
+        })}
+
         <TableLayer 
           tables={currentSlide?.tables || []}
           onUpdate={updateTable}

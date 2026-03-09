@@ -158,6 +158,21 @@ export const EditorProvider = ({ children }) => {
   const [matchWholeWord, setMatchWholeWord] = useState(false);
   const [selectionMode, setSelectionMode] = useState('normal');
 
+  // ========== QUESTION SESSION STATES ==========
+  const [sessionActive, setSessionActive] = useState(false);
+  const [currentQuestionResponses, setCurrentQuestionResponses] = useState([]);
+  const [showResults, setShowResults] = useState(false);
+  const [sessionParticipants, setSessionParticipants] = useState([]);
+
+  // ========== POLL SETTINGS ==========
+  const [pollSettings, setPollSettings] = useState({
+    showResults: false,
+    isPrivate: false,
+    showCount: true,
+    timer: 30,
+    allowMultiple: false
+  });
+
   // ========== HELPER FUNCTIONS ==========
   const showToast = useCallback((msg) => {
     setStatusMessage(msg);
@@ -507,7 +522,7 @@ export const EditorProvider = ({ children }) => {
     }
 
     setSelectedWord(selection);
-    showToast("Thesaurus lookup failed"); // Simplified for now
+    showToast("Thesaurus lookup failed");
   }, [showToast]);
 
   const handleAccessibilityCheck = useCallback(() => {
@@ -764,6 +779,141 @@ export const EditorProvider = ({ children }) => {
 
     showToast('Background applied');
   }, [backgroundType, backgroundColor, gradientStart, gradientEnd, gradientAngle, backgroundImage, backgroundTransparency, activeSlideId, showToast]);
+
+  // ========== QUESTION FUNCTIONS ==========
+  const convertToQuestion = useCallback((questionType) => {
+    setSlides(prev => prev.map(s => {
+      if (s.id === activeSlideId) {
+        let defaultOptions = [];
+        
+        if (questionType === 'multiple-choice') {
+          defaultOptions = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
+        } else if (questionType === 'true-false') {
+          defaultOptions = ['True', 'False'];
+        } else if (questionType === 'quiz') {
+          defaultOptions = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
+        } else {
+          defaultOptions = [];
+        }
+
+        return {
+          ...s,
+          layout: 'QUESTION',
+          questionType: questionType,
+          questionData: {
+            title: s.title || "Enter your question here...",
+            options: defaultOptions,
+            correctAnswer: null,
+            appearance: {
+              layoutMode: 'grid',
+              theme: 'light',
+              accentColor: '#f59e0b',
+              cardStyle: 'curved',
+              fontSize: 'medium',
+              showLetters: true,
+              gap: '20px'
+            }
+          }
+        };
+      }
+      return s;
+    }));
+    
+    showToast(`${questionType} question created`);
+  }, [activeSlideId, showToast]);
+
+  const toggleCorrectAnswer = useCallback((index) => {
+    setSlides(prev => prev.map(s => {
+      if (s.id === activeSlideId) {
+        return {
+          ...s,
+          questionData: {
+            ...s.questionData,
+            correctAnswer: s.questionData.correctAnswer === index ? null : index
+          }
+        };
+      }
+      return s;
+    }));
+  }, [activeSlideId]);
+
+  const updateQuestionData = useCallback((newData) => {
+    setSlides(prev => prev.map(s => 
+      s.id === activeSlideId ? { ...s, questionData: { ...s.questionData, ...newData } } : s
+    ));
+  }, [activeSlideId]);
+
+  // ========== SESSION FUNCTIONS ==========
+  const startSession = useCallback(() => {
+    setSessionActive(true);
+    setCurrentQuestionResponses([]);
+    showToast("Session started");
+  }, [showToast]);
+
+  const endSession = useCallback(() => {
+    setSessionActive(false);
+    setShowResults(true);
+    showToast("Session ended");
+  }, [showToast]);
+
+  const addResponse = useCallback((response) => {
+    setCurrentQuestionResponses(prev => [...prev, {
+      ...response,
+      timestamp: Date.now(),
+      id: `resp_${Date.now()}_${Math.random()}`
+    }]);
+  }, []);
+
+  const clearResponses = useCallback(() => {
+    setCurrentQuestionResponses([]);
+  }, []);
+
+  // ========== ADVANCED FUNCTIONS ==========
+  const handleExportResults = useCallback(() => {
+    const currentSlide = slides.find(s => s.id === activeSlideId);
+    const questionData = {
+      id: `Q${activeSlideId}`,
+      type: currentSlide?.questionType,
+      title: currentSlide?.questionData?.title || "Untitled Question",
+      options: currentSlide?.questionData?.options || [],
+      correctAnswer: currentSlide?.questionData?.correctAnswer,
+      responses: currentQuestionResponses || [],
+      stats: {
+        total: currentQuestionResponses?.length || 0,
+        correct: currentQuestionResponses?.filter(r => r.selectedOption === currentSlide?.questionData?.correctAnswer).length || 0,
+        timestamp: new Date().toISOString()
+      }
+    };
+
+    const blob = new Blob([JSON.stringify(questionData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `question-${activeSlideId}-results.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast("Results exported successfully!");
+  }, [activeSlideId, slides, currentQuestionResponses, showToast]);
+
+  const handleShareQuestion = useCallback(() => {
+    const questionUrl = `${window.location.origin}/question/${activeSlideId}`;
+    
+    navigator.clipboard.writeText(questionUrl).then(() => {
+      showToast("Question link copied to clipboard!");
+    }).catch(() => {
+      prompt("Copy this link:", questionUrl);
+    });
+  }, [activeSlideId, showToast]);
+
+  const handleCopyQuestionId = useCallback(() => {
+    const questionId = `Q${activeSlideId}`;
+    navigator.clipboard.writeText(questionId).then(() => {
+      showToast("Question ID copied!");
+    });
+  }, [activeSlideId, showToast]);
 
   const resetBackground = useCallback(() => {
     setBackgroundType('solid');
@@ -1047,22 +1197,30 @@ export const EditorProvider = ({ children }) => {
     googleTranslate,
     getFieldFromElement,
 
-    // Hooks - Presentation
+    // Poll Settings
+    pollSettings, setPollSettings,
+
+    // Question Functions
+    convertToQuestion, updateQuestionData, toggleCorrectAnswer,
+
+    // Session Management
+    sessionActive, setSessionActive,
+    currentQuestionResponses, setCurrentQuestionResponses,
+    showResults, setShowResults,
+    sessionParticipants, setSessionParticipants,
+    startSession, endSession, addResponse, clearResponses,
+
+    // Advanced Functions
+    handleExportResults,
+    handleShareQuestion,
+    handleCopyQuestionId,
+
+    // Hooks
     ...presentation,
-
-    // Hooks - Animations
     ...animations,
-
-    // Hooks - Transitions
     ...transitions,
-
-    // Hooks - Formatting
     ...formatting,
-
-    // Hooks - Drawing
     ...drawing,
-
-    // Hooks - Clipboard
     ...clipboard
   };
 

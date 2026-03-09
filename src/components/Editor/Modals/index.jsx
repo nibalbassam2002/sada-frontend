@@ -1,4 +1,4 @@
-// src/components/Editor/Modals/index.js
+// src/components/Editor/Modals/index.jsx
 import React from 'react';
 import { useEditor } from '../EditorContext';
 import LayoutPicker from './LayoutPicker';
@@ -8,6 +8,7 @@ import TableModal from './TableModal';
 import SearchReplaceDialog from './SearchReplaceDialog';
 import SizeModal from './SizeModal';
 import BackgroundPanel from './BackgroundPanel';
+
 
 export const Modals = {
   LayoutPicker: () => {
@@ -26,8 +27,8 @@ export const Modals = {
   },
   
   TableModal: () => {
-    const { showTableModal } = useEditor();
-    return showTableModal ? <TableModal /> : null;
+    const { showTableModal, addTable } = useEditor();
+    return showTableModal ? <TableModal onInsert={addTable} /> : null;
   },
   
   SearchReplace: () => {
@@ -41,5 +42,8 @@ export const Modals = {
   
   BackgroundPanel: ({ onClose }) => {
     return <BackgroundPanel onClose={onClose} />;
-  }
+  },
+
+ 
+
 };

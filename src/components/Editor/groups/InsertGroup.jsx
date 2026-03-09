@@ -18,7 +18,10 @@ const InsertGroup = () => {
       icon: Table,
       text: 'Table',
       hasDropdown: true,
-      onClick: () => setShowTableModal(true)
+          onClick: () => {
+      console.log(' Table button clicked'); // للتأكد
+      setShowTableModal(true);
+    }
     },
     {
       id: 'images',

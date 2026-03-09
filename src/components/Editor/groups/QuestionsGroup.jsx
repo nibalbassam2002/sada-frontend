@@ -1,167 +1,139 @@
 // src/components/Editor/groups/QuestionsGroup.js
 import React from 'react';
+import { useEditor } from '../EditorContext';
 import {
-  List, Cloud, MessageSquare, TrendingUp, Sliders, ImagePlus,
-  Lightbulb, FileQuestion, Target, Award, Eye, EyeOff, Users,
-  Timer, RotateCcw, Download, Settings
+  List, Cloud, MessageSquare, FileQuestion, Target, Award,
+  Eye, EyeOff, Users, Timer, CheckCircle2, XCircle,
+  Zap, Circle, Lock, Globe
 } from 'lucide-react';
 
 const QuestionsGroup = () => {
-  const groups = [
-    {
-      id: 'basic-polls',
-      label: 'Basic Polls',
-      type: 'polls-basic'
-    },
-    {
-      id: 'advanced',
-      label: 'Advanced',
-      type: 'polls-advanced'
-    },
-    {
-      id: 'gaming',
-      label: 'Gaming',
-      type: 'polls-gaming'
-    },
-    {
-      id: 'privacy',
-      label: 'Privacy',
-      type: 'polls-privacy'
-    },
-    {
-      id: 'config',
-      label: 'Config',
-      type: 'polls-config'
-    }
-  ];
+  const { 
+    convertToQuestion, 
+    pollSettings, 
+    setPollSettings, 
+    activeSlideId, 
+    slides 
+  } = useEditor();
 
-  const renderGroup = (group) => {
-    switch(group.type) {
-      case 'polls-basic':
-        return (
-          <div className="ribbon-group" key={group.id}>
-            <div className="group-content-flex">
-              <button className="btn-mega">
-                <List size={28} color="#f59e0b" />
-                <span>Multiple Choice</span>
-              </button>
-              <div className="mini-tools-stack">
-                <button className="btn-mini-wide">
-                  <Cloud size={14} color="#3b82f6" /> Word Cloud
-                </button>
-                <button className="btn-mini-wide">
-                  <MessageSquare size={14} color="#10b981" /> Open Ended
-                </button>
-              </div>
-            </div>
-            <div className="group-label">{group.label}</div>
-          </div>
-        );
-
-      case 'polls-advanced':
-        return (
-          <div className="ribbon-group" key={group.id}>
-            <div className="group-content-col">
-              <div className="tool-row">
-                <button className="btn-icon-s">
-                  <TrendingUp size={16} color="#8b5cf6" /> Ranking
-                </button>
-                <button className="btn-icon-s">
-                  <Sliders size={16} color="#06b6d4" /> Scales
-                </button>
-              </div>
-              <div className="tool-row">
-                <button className="btn-icon-s">
-                  <ImagePlus size={16} color="#db2777" /> Images
-                </button>
-                <button className="btn-icon-s">
-                  <Lightbulb size={16} color="#fbbf24" /> Ideas
-                </button>
-              </div>
-            </div>
-            <div className="group-label">{group.label}</div>
-          </div>
-        );
-
-      case 'polls-gaming':
-        return (
-          <div className="ribbon-group" key={group.id}>
-            <div className="group-content-flex">
-              <button className="btn-mega">
-                <FileQuestion size={28} color="#ef4444" />
-                <span>Quiz Mode</span>
-              </button>
-              <div className="mini-tools-stack">
-                <button className="btn-mini-wide">
-                  <Target size={14} color="#f97316" /> True / False
-                </button>
-                <button className="btn-mini-wide">
-                  <Award size={14} color="#eab308" /> Leaderboard
-                </button>
-              </div>
-            </div>
-            <div className="group-label">{group.label}</div>
-          </div>
-        );
-
-      case 'polls-privacy':
-        return (
-          <div className="ribbon-group" key={group.id}>
-            <div className="group-content-col">
-              <button className="btn-mini-wide active-tool">
-                <Eye size={14} color="#10b981" /> Public Results
-              </button>
-              <button className="btn-mini-wide">
-                <EyeOff size={14} color="#64748b" /> Private View
-              </button>
-              <button className="btn-mini-wide">
-                <Users size={14} color="#6366f1" /> Count: On
-              </button>
-            </div>
-            <div className="group-label">{group.label}</div>
-          </div>
-        );
-
-      case 'polls-config':
-        return (
-          <div className="ribbon-group" key={group.id}>
-            <div className="group-content-col">
-              <div className="tool-row">
-                <Timer size={14} color="#64748b" />
-                <select className="ribbon-select" style={{ width: '65px' }}>
-                  <option>30s</option>
-                  <option>60s</option>
-                </select>
-              </div>
-              <div className="tool-row" style={{ marginTop: '5px' }}>
-                <button className="btn-icon-s" title="Reset">
-                  <RotateCcw size={16} />
-                </button>
-                <button className="btn-icon-s" title="Report">
-                  <Download size={16} />
-                </button>
-                <button className="btn-icon-s" title="Settings">
-                  <Settings size={16} />
-                </button>
-              </div>
-            </div>
-            <div className="group-label">{group.label}</div>
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  };
+  const currentSlide = slides.find(s => s.id === activeSlideId);
+  const isQuestion = currentSlide?.layout === 'QUESTION';
 
   return (
     <>
-      {groups.map((group, index) => (
-        <React.Fragment key={group.id}>
-          {renderGroup(group)}
-          {index < groups.length - 1 && <div className="v-divider-slim"></div>}
-        </React.Fragment>
-      ))}
+      {/* Multiple Choice - 4 خيارات افتراضية */}
+      <div className="ribbon-group">
+        <div className="group-content-flex">
+          <button 
+            className={`btn-mega ${currentSlide?.questionType === 'multiple-choice' ? 'active' : ''}`}
+            onClick={() => convertToQuestion('multiple-choice')}
+            title="4 options by default"
+          >
+            <List size={28} color="#f59e0b" />
+            <span>Multiple Choice</span>
+            <small className="option-count">4 options</small>
+          </button>
+          <div className="mini-tools-stack">
+            <button 
+              className={`btn-mini-wide ${currentSlide?.questionType === 'true-false' ? 'active' : ''}`}
+              onClick={() => convertToQuestion('true-false')}
+            >
+              <Target size={14} color="#f97316" /> 
+              <span>True / False</span>
+              <small className="option-badge">2 options</small>
+            </button>
+            <button 
+              className={`btn-mini-wide ${currentSlide?.questionType === 'quiz' ? 'active' : ''}`}
+              onClick={() => convertToQuestion('quiz')}
+            >
+              <Zap size={14} color="#eab308" /> 
+              <span>Quiz Mode</span>
+              <small className="points-badge">10 pts</small>
+            </button>
+          </div>
+        </div>
+        <div className="group-label">CHOICES</div>
+      </div>
+
+      <div className="v-divider-slim"></div>
+
+      {/* Word Cloud & Open Ended */}
+      <div className="ribbon-group">
+        <div className="group-content-flex">
+          <button 
+            className={`btn-mega ${currentSlide?.questionType === 'word-cloud' ? 'active' : ''}`}
+            onClick={() => convertToQuestion('word-cloud')}
+          >
+            <Cloud size={28} color="#3b82f6" />
+            <span>Word Cloud</span>
+          </button>
+          <div className="mini-tools-stack">
+            <button 
+              className={`btn-mini-wide ${currentSlide?.questionType === 'open-ended' ? 'active' : ''}`}
+              onClick={() => convertToQuestion('open-ended')}
+            >
+              <MessageSquare size={14} color="#10b981" /> 
+              <span>Open Ended</span>
+            </button>
+          </div>
+        </div>
+        <div className="group-label">OPEN</div>
+      </div>
+
+      <div className="v-divider-slim"></div>
+
+      {/* Privacy & Config */}
+      <div className="ribbon-group">
+        <div className="group-content-col">
+          <button 
+            className={`btn-mini-wide ${pollSettings.showResults ? 'active-tool' : ''}`}
+            onClick={() => setPollSettings(p => ({...p, showResults: !p.showResults}))}
+          >
+            {pollSettings.showResults ? (
+              <>
+                <Globe size={14} color="#10b981" /> 
+                <span>Public Results</span>
+              </>
+            ) : (
+              <>
+                <Lock size={14} color="#64748b" /> 
+                <span>Private Results</span>
+              </>
+            )}
+          </button>
+          
+          <button 
+            className={`btn-mini-wide ${pollSettings.showCount ? 'active-tool' : ''}`}
+            onClick={() => setPollSettings(p => ({...p, showCount: !p.showCount}))}
+          >
+            <Users size={14} color="#6366f1" /> 
+            <span>Count: {pollSettings.showCount ? 'On' : 'Off'}</span>
+          </button>
+          
+          <button className="btn-mini-wide">
+            <Timer size={14} color="#8b5cf6" /> 
+            <span>{pollSettings.timer || 30}s</span>
+          </button>
+        </div>
+        <div className="group-label">PRIVACY</div>
+      </div>
+
+      {/* مؤشر نوع السؤال المحدد */}
+      {isQuestion && (
+        <div className="active-question-indicator">
+          <div className="indicator-content">
+            <Circle size={12} color="#f59e0b" />
+            <span>Editing: </span>
+            <strong>
+              {currentSlide?.questionType === 'multiple-choice' ? 'Multiple Choice' :
+               currentSlide?.questionType === 'true-false' ? 'True/False' :
+               currentSlide?.questionType === 'quiz' ? 'Quiz Mode' :
+               currentSlide?.questionType === 'word-cloud' ? 'Word Cloud' :
+               currentSlide?.questionType === 'open-ended' ? 'Open Ended' : 'Question'}
+            </strong>
+          </div>
+        </div>
+      )}
     </>
   );
 };

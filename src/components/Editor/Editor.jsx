@@ -27,7 +27,7 @@ const EditorContent = () => {
     showBackgroundPanel,
     setShowSizeModal,
     setShowBackgroundPanel,
-    handleImageUpload  // أضف هذه السطر
+    handleImageUpload
   } = useEditor();
 
   return (
@@ -60,12 +60,13 @@ const EditorContent = () => {
         </div>
       )}
 
-      {/* MODALS */}
+      {/* MODALS - كل النوافذ المنبثقة */}
       <Modals.LayoutPicker />
       <Modals.FontPicker />
       <Modals.ColorPicker />
       <Modals.TableModal />
       <Modals.SearchReplace />
+  
       {showSizeModal && (
         <Modals.SizeModal onClose={() => setShowSizeModal(false)} />
       )}
@@ -84,7 +85,7 @@ const EditorContent = () => {
       {/* ANIMATION PANE */}
       {showAnimationPane && <Panels.AnimationPane />}
 
-      {/* input الصور - ضعه هنا داخل المكون */}
+      {/* input الصور */}
       <input
         type="file"
         id="global-image-upload"
@@ -96,7 +97,7 @@ const EditorContent = () => {
   );
 };
 
-// المكون الرئيسي المُصدر
+// المكون الرئيسي
 const Editor = () => {
   return (
     <EditorProvider>
