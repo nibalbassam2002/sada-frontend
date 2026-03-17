@@ -8,6 +8,7 @@ import { useTransitions } from './Hooks/useTransitions';
 import { useFormatting } from './Hooks/useFormatting';
 import { useDrawing } from './Hooks/useDrawing';
 import { useClipboard } from './Hooks/useClipboard';
+import api from '../../api/axios';
 import Typo from 'typo-js';
 
 const dictionary = new Typo('en_US');
@@ -23,6 +24,22 @@ export const useEditor = () => {
 };
 
 export const EditorProvider = ({ children }) => {
+  const [isPresenting, setIsPresenting] = useState(false); // هل نحن في وضع العرض؟
+
+  // دالة لتشغيل العرض
+  const startPresentation = () => setIsPresenting(true);
+
+  // دالة للخروج من العرض
+  const endPresentation = () => setIsPresenting(false);
+  // ========== LOADING & SAVE STATES ==========
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDirty, setIsDirty] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState(null);
+  
+  // جلب رقم الـ ID من الرابط
+  const presentationId = window.location.pathname.split('/').pop();
+
   // ========== BASIC STATES ==========
   const query = new URLSearchParams(window.location.search);
   const initialTheme = parseInt(query.get('templateId')) ?? 0;
@@ -30,28 +47,14 @@ export const EditorProvider = ({ children }) => {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
   const [activeTab, setActiveTab] = useState("Home");
   const [isCollapsed, setIsCollapsed] = useState(true);
-  const [title, setTitle] = useState("First Presentation");
+  const [title, setTitle] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [selectedField, setSelectedField] = useState(null);
   const colorButtonRef = React.useRef(null);
 
   // ========== SLIDES STATES ==========
-  const [slides, setSlides] = useState([{ 
-    id: 1, 
-    layout: LAYOUT_TYPES.TITLE_SLIDE, 
-    title: "", 
-    subtitle: "", 
-    tables: [], 
-    shapes: [], 
-    images: [], 
-    content: "", 
-    leftContent: "", 
-    rightContent: "", 
-    titleStyle: { fontFamily: 'Calibri', fontSize: 48 }, 
-    subtitleStyle: { fontFamily: 'Calibri', fontSize: 24 }, 
-    contentStyle: { fontFamily: 'Calibri', fontSize: 24 } 
-  }]);
-  const [activeSlideId, setActiveSlideId] = useState(1);
+  const [slides, setSlides] = useState([]);
+  const [activeSlideId, setActiveSlideId] = useState(null);
 
   // ========== VIEW STATES ==========
   const [viewMode, setViewMode] = useState('normal');
@@ -179,6 +182,147 @@ export const EditorProvider = ({ children }) => {
     setTimeout(() => setStatusMessage(""), 2000);
   }, []);
 
+  // ========== FETCH PRESENTATION ==========
+  const fetchPresentation = useCallback(async () => {
+    if (!presentationId) return;
+    
+    try {
+      setIsLoading(true);
+      console.log("Fetching presentation:", presentationId);
+      
+      const response = await api.get(`/presentations/${presentationId}`);
+      console.log("Server response:", response.data);
+      
+      if (response.data.status && response.data.data) {
+        const data = response.data.data;
+        
+        // تعيين العنوان
+        setTitle(data.title || "Untitled");
+        
+        // تعيين الشرائح
+        if (data.slides && data.slides.length > 0) {
+          console.log("Loading slides from server:", data.slides);
+          setSlides(data.slides);
+          
+          // تعيين أول شريحة كنشطة
+          if (data.slides[0]?.id) {
+            setActiveSlideId(data.slides[0].id);
+          }
+        } else {
+          // إذا ما في شرائح، نضيف شريحة افتراضية
+          const defaultSlide = { 
+            id: Date.now(), 
+            layout: LAYOUT_TYPES.TITLE_SLIDE, 
+            title: "Click to add title", 
+            subtitle: "Click to add subtitle", 
+            tables: [], 
+            shapes: [], 
+            images: [], 
+            content: "", 
+            leftContent: "", 
+            rightContent: "", 
+            titleStyle: { fontFamily: 'Calibri', fontSize: 48 }, 
+            subtitleStyle: { fontFamily: 'Calibri', fontSize: 24 }, 
+            contentStyle: { fontFamily: 'Calibri', fontSize: 24 } 
+          };
+          setSlides([defaultSlide]);
+          setActiveSlideId(defaultSlide.id);
+        }
+        
+        // تعيين القالب إذا موجود
+        if (data.template_id !== undefined && data.template_id !== null) {
+          setCurrentTheme(parseInt(data.template_id));
+        }
+        
+        showToast("Presentation loaded!");
+      }
+    } catch (error) {
+      console.error("Failed to fetch presentation:", error);
+      showToast("Failed to load presentation");
+      
+      // في حالة الخطأ، نضيف شريحة افتراضية
+      const defaultSlide = { 
+        id: Date.now(), 
+        layout: LAYOUT_TYPES.TITLE_SLIDE, 
+        title: "New Presentation", 
+        subtitle: "Start editing", 
+        tables: [], 
+        shapes: [], 
+        images: [], 
+        content: "", 
+        leftContent: "", 
+        rightContent: "", 
+        titleStyle: { fontFamily: 'Calibri', fontSize: 48 }, 
+        subtitleStyle: { fontFamily: 'Calibri', fontSize: 24 }, 
+        contentStyle: { fontFamily: 'Calibri', fontSize: 24 } 
+      };
+      setSlides([defaultSlide]);
+      setActiveSlideId(defaultSlide.id);
+      setTitle("Untitled");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [presentationId, showToast]);
+
+  // ========== LOAD PRESENTATION ON MOUNT ==========
+  useEffect(() => {
+    fetchPresentation();
+  }, [fetchPresentation]);
+
+  // ========== SAVE FUNCTION ==========
+  const savePresentation = useCallback(async (force = false) => {
+    // لا تحفظ إذا كان التحميل لسه شغال
+    if (isLoading) return;
+    
+    if (isSaving) return;
+
+    if (!force && !isDirty) {
+      showToast("No changes to save");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const dataToSave = {
+        title: title,
+        slides: slides,
+        template_id: currentTheme  // ✅ حفظ الثيم المختار
+      };
+
+      console.log("Saving presentation...", { 
+        presentationId, 
+        slidesCount: slides.length 
+      });
+
+      const response = await api.post(`/presentations/${presentationId}/sync`, dataToSave);
+      
+      console.log("Save response:", response.data);
+
+      if (response.data.status) {
+        setIsDirty(false);
+        setLastSaved(new Date());
+        showToast(force ? "Saved manually!" : "Saved to Cloud!");
+      }
+    } catch (error) {
+      console.error("Save failed:", error);
+      showToast("Check your connection");
+    } finally {
+      setIsSaving(false);
+    }
+  }, [isLoading, isSaving, isDirty, title, slides, currentTheme, presentationId, showToast]);
+
+  // ========== AUTO-SAVE EFFECT ==========
+  useEffect(() => {
+    // لا تفعل الحفظ التلقائي إذا كان التحميل شغال أو لا توجد تغييرات
+    if (isLoading || !isDirty || isSaving) return;
+    
+    const timer = setTimeout(() => {
+      savePresentation(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [isDirty, isSaving, isLoading, savePresentation]);
+
   // ========== SLIDE FUNCTIONS ==========
   const createNewSlide = useCallback((layoutType = LAYOUT_TYPES.BLANK) => ({
     id: Date.now(),
@@ -200,7 +344,11 @@ export const EditorProvider = ({ children }) => {
 
   const addNewSlide = useCallback((layoutType = LAYOUT_TYPES.BLANK) => {
     const newSlide = createNewSlide(layoutType);
-    setSlides(prev => [...prev, newSlide]);
+    setSlides(prev => {
+      const updatedSlides = [...prev, newSlide];
+      setIsDirty(true);
+      return updatedSlides;
+    });
     setActiveSlideId(newSlide.id);
     setShowLayoutPicker(false);
     showToast("New slide added");
@@ -210,9 +358,13 @@ export const EditorProvider = ({ children }) => {
     if (pickerMode === 'add') {
       addNewSlide(type);
     } else {
-      setSlides(prev => prev.map(s => 
-        s.id === activeSlideId ? { ...s, layout: type } : s
-      ));
+      setSlides(prev => {
+        const updatedSlides = prev.map(s => 
+          s.id === activeSlideId ? { ...s, layout: type } : s
+        );
+        setIsDirty(true);
+        return updatedSlides;
+      });
       setShowLayoutPicker(false);
       showToast("Layout changed!");
     }
@@ -223,6 +375,7 @@ export const EditorProvider = ({ children }) => {
     if (slides.length > 1) {
       const newSlides = slides.filter(slide => slide.id !== id);
       setSlides(newSlides);
+      setIsDirty(true);
       if (activeSlideId === id) {
         setActiveSlideId(newSlides[0].id);
       }
@@ -237,18 +390,22 @@ export const EditorProvider = ({ children }) => {
       const element = document.querySelector('.active-editing');
       if (element) {
         element.style.fontFamily = fontName;
-        setSlides(prev => prev.map(s => {
-          if (s.id === activeSlideId) {
-            return {
-              ...s,
-              [`${selectedField}Style`]: {
-                ...(s[`${selectedField}Style`] || {}),
-                fontFamily: fontName
-              }
-            };
-          }
-          return s;
-        }));
+        setSlides(prev => {
+          const updatedSlides = prev.map(s => {
+            if (s.id === activeSlideId) {
+              return {
+                ...s,
+                [`${selectedField}Style`]: {
+                  ...(s[`${selectedField}Style`] || {}),
+                  fontFamily: fontName
+                }
+              };
+            }
+            return s;
+          });
+          setIsDirty(true);
+          return updatedSlides;
+        });
       }
     }
     setShowFontPicker(false);
@@ -263,18 +420,22 @@ export const EditorProvider = ({ children }) => {
       const element = document.querySelector('.active-editing');
       if (element) {
         element.style.fontSize = `${newSize}px`;
-        setSlides(prev => prev.map(s => {
-          if (s.id === activeSlideId) {
-            return {
-              ...s,
-              [`${selectedField}Style`]: {
-                ...(s[`${selectedField}Style`] || {}),
-                fontSize: newSize
-              }
-            };
-          }
-          return s;
-        }));
+        setSlides(prev => {
+          const updatedSlides = prev.map(s => {
+            if (s.id === activeSlideId) {
+              return {
+                ...s,
+                [`${selectedField}Style`]: {
+                  ...(s[`${selectedField}Style`] || {}),
+                  fontSize: newSize
+                }
+              };
+            }
+            return s;
+          });
+          setIsDirty(true);
+          return updatedSlides;
+        });
       }
     }
   }, [selectedField, activeSlideId]);
@@ -373,12 +534,16 @@ export const EditorProvider = ({ children }) => {
           filters: { brightness: 100, contrast: 100 }
         };
 
-        setSlides(prev => prev.map(slide => {
-          if (slide.id === activeSlideId) {
-            return { ...slide, images: [...(slide.images || []), newImage] };
-          }
-          return slide;
-        }));
+        setSlides(prev => {
+          const updatedSlides = prev.map(slide => {
+            if (slide.id === activeSlideId) {
+              return { ...slide, images: [...(slide.images || []), newImage] };
+            }
+            return slide;
+          });
+          setIsDirty(true);
+          return updatedSlides;
+        });
         showToast("Image added to slide");
       };
       reader.readAsDataURL(file);
@@ -386,25 +551,33 @@ export const EditorProvider = ({ children }) => {
   }, [activeSlideId, showToast]);
 
   const deleteImage = useCallback((imageId) => {
-    setSlides(prev => prev.map(slide => {
-      if (slide.id === activeSlideId) {
-        return { ...slide, images: slide.images.filter(img => img.id !== imageId) };
-      }
-      return slide;
-    }));
+    setSlides(prev => {
+      const updatedSlides = prev.map(slide => {
+        if (slide.id === activeSlideId) {
+          return { ...slide, images: slide.images.filter(img => img.id !== imageId) };
+        }
+        return slide;
+      });
+      setIsDirty(true);
+      return updatedSlides;
+    });
     showToast("Image deleted");
   }, [activeSlideId, showToast]);
 
   const updateImageStyle = useCallback((imageId, updates) => {
-    setSlides(prev => prev.map(slide => {
-      if (slide.id === activeSlideId) {
-        return {
-          ...slide,
-          images: slide.images.map(img => img.id === imageId ? { ...img, ...updates } : img)
-        };
-      }
-      return slide;
-    }));
+    setSlides(prev => {
+      const updatedSlides = prev.map(slide => {
+        if (slide.id === activeSlideId) {
+          return {
+            ...slide,
+            images: slide.images.map(img => img.id === imageId ? { ...img, ...updates } : img)
+          };
+        }
+        return slide;
+      });
+      setIsDirty(true);
+      return updatedSlides;
+    });
   }, [activeSlideId]);
 
   // ========== TABLE FUNCTIONS ==========
@@ -422,12 +595,16 @@ export const EditorProvider = ({ children }) => {
       style: { fill: '#ffffff', borderColor: '#e2e8f0', align: 'left', bold: false, italic: false } 
     }; 
     
-    setSlides(prev => prev.map(slide => { 
-      if (slide.id === activeSlideId) {
-        return { ...slide, tables: [...(slide.tables || []), newTable] }; 
-      }
-      return slide; 
-    })); 
+    setSlides(prev => {
+      const updatedSlides = prev.map(slide => { 
+        if (slide.id === activeSlideId) {
+          return { ...slide, tables: [...(slide.tables || []), newTable] }; 
+        }
+        return slide; 
+      });
+      setIsDirty(true);
+      return updatedSlides;
+    }); 
     
     setSelectedTable(newTable.id); 
     setShowTableModal(false); 
@@ -435,24 +612,32 @@ export const EditorProvider = ({ children }) => {
   }, [activeSlideId, showToast]);
 
   const updateTable = useCallback((updatedTable) => { 
-    setSlides(prev => prev.map(slide => { 
-      if (slide.id === activeSlideId) {
-        return { 
-          ...slide, 
-          tables: (slide.tables || []).map(t => t.id === updatedTable.id ? updatedTable : t) 
-        }; 
-      }
-      return slide; 
-    })); 
+    setSlides(prev => {
+      const updatedSlides = prev.map(slide => { 
+        if (slide.id === activeSlideId) {
+          return { 
+            ...slide, 
+            tables: (slide.tables || []).map(t => t.id === updatedTable.id ? updatedTable : t) 
+          }; 
+        }
+        return slide; 
+      });
+      setIsDirty(true);
+      return updatedSlides;
+    }); 
   }, [activeSlideId]);
 
   const deleteTable = useCallback((tableId) => { 
-    setSlides(prev => prev.map(slide => { 
-      if (slide.id === activeSlideId) {
-        return { ...slide, tables: (slide.tables || []).filter(t => t.id !== tableId) }; 
-      }
-      return slide; 
-    })); 
+    setSlides(prev => {
+      const updatedSlides = prev.map(slide => { 
+        if (slide.id === activeSlideId) {
+          return { ...slide, tables: (slide.tables || []).filter(t => t.id !== tableId) }; 
+        }
+        return slide; 
+      });
+      setIsDirty(true);
+      return updatedSlides;
+    }); 
     
     if (selectedTable === tableId) setSelectedTable(null); 
     showToast("Table deleted"); 
@@ -725,6 +910,7 @@ export const EditorProvider = ({ children }) => {
   // ========== DESIGN FUNCTIONS ==========
   const applyTheme = useCallback((themeId) => {
     setCurrentTheme(themeId);
+    setIsDirty(true);
     showToast(`Theme ${themeId} applied`);
   }, [showToast]);
 
@@ -733,6 +919,7 @@ export const EditorProvider = ({ children }) => {
     const variant = variants.find(v => v.id === variantId);
     if (variant) {
       document.documentElement.style.setProperty('--sada-orange', variant.colors[0]);
+      setIsDirty(true);
       showToast(`Variant applied`);
     }
   }, [variants, showToast]);
@@ -746,11 +933,13 @@ export const EditorProvider = ({ children }) => {
       setSlideWidth(1366);
       setSlideHeight(768);
     }
+    setIsDirty(true);
     showToast(`Slide size changed to ${size}`);
   }, [showToast]);
 
   const applyCustomSize = useCallback(() => {
     setSlideSize('custom');
+    setIsDirty(true);
     showToast(`Custom size applied: ${slideWidth}x${slideHeight}`);
     setShowSizeModal(false);
   }, [slideWidth, slideHeight, showToast]);
@@ -771,76 +960,92 @@ export const EditorProvider = ({ children }) => {
     canvas.style.background = backgroundStyle;
     canvas.style.opacity = backgroundTransparency / 100;
 
-    setSlides(prev => prev.map(s =>
-      s.id === activeSlideId
-        ? { ...s, background: { type: backgroundType, value: backgroundStyle, transparency: backgroundTransparency } }
-        : s
-    ));
+    setSlides(prev => {
+      const updatedSlides = prev.map(s =>
+        s.id === activeSlideId
+          ? { ...s, background: { type: backgroundType, value: backgroundStyle, transparency: backgroundTransparency } }
+          : s
+      );
+      setIsDirty(true);
+      return updatedSlides;
+    });
 
     showToast('Background applied');
   }, [backgroundType, backgroundColor, gradientStart, gradientEnd, gradientAngle, backgroundImage, backgroundTransparency, activeSlideId, showToast]);
 
   // ========== QUESTION FUNCTIONS ==========
   const convertToQuestion = useCallback((questionType) => {
-    setSlides(prev => prev.map(s => {
-      if (s.id === activeSlideId) {
-        let defaultOptions = [];
-        
-        if (questionType === 'multiple-choice') {
-          defaultOptions = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
-        } else if (questionType === 'true-false') {
-          defaultOptions = ['True', 'False'];
-        } else if (questionType === 'quiz') {
-          defaultOptions = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
-        } else {
-          defaultOptions = [];
-        }
-
-        return {
-          ...s,
-          layout: 'QUESTION',
-          questionType: questionType,
-          questionData: {
-            title: s.title || "Enter your question here...",
-            options: defaultOptions,
-            correctAnswer: null,
-            appearance: {
-              layoutMode: 'grid',
-              theme: 'light',
-              accentColor: '#f59e0b',
-              cardStyle: 'curved',
-              fontSize: 'medium',
-              showLetters: true,
-              gap: '20px'
-            }
+    setSlides(prev => {
+      const updatedSlides = prev.map(s => {
+        if (s.id === activeSlideId) {
+          let defaultOptions = [];
+          
+          if (questionType === 'multiple-choice') {
+            defaultOptions = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
+          } else if (questionType === 'true-false') {
+            defaultOptions = ['True', 'False'];
+          } else if (questionType === 'quiz') {
+            defaultOptions = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
+          } else {
+            defaultOptions = [];
           }
-        };
-      }
-      return s;
-    }));
+
+          return {
+            ...s,
+            layout: 'QUESTION',
+            questionType: questionType,
+            questionData: {
+              title: s.title || "Enter your question here...",
+              options: defaultOptions,
+              correctAnswer: null,
+              appearance: {
+                layoutMode: 'grid',
+                theme: 'light',
+                accentColor: '#f59e0b',
+                cardStyle: 'curved',
+                fontSize: 'medium',
+                showLetters: true,
+                gap: '20px'
+              }
+            }
+          };
+        }
+        return s;
+      });
+      setIsDirty(true);
+      return updatedSlides;
+    });
     
     showToast(`${questionType} question created`);
   }, [activeSlideId, showToast]);
 
   const toggleCorrectAnswer = useCallback((index) => {
-    setSlides(prev => prev.map(s => {
-      if (s.id === activeSlideId) {
-        return {
-          ...s,
-          questionData: {
-            ...s.questionData,
-            correctAnswer: s.questionData.correctAnswer === index ? null : index
-          }
-        };
-      }
-      return s;
-    }));
+    setSlides(prev => {
+      const updatedSlides = prev.map(s => {
+        if (s.id === activeSlideId) {
+          return {
+            ...s,
+            questionData: {
+              ...s.questionData,
+              correctAnswer: s.questionData.correctAnswer === index ? null : index
+            }
+          };
+        }
+        return s;
+      });
+      setIsDirty(true);
+      return updatedSlides;
+    });
   }, [activeSlideId]);
 
   const updateQuestionData = useCallback((newData) => {
-    setSlides(prev => prev.map(s => 
-      s.id === activeSlideId ? { ...s, questionData: { ...s.questionData, ...newData } } : s
-    ));
+    setSlides(prev => {
+      const updatedSlides = prev.map(s => 
+        s.id === activeSlideId ? { ...s, questionData: { ...s.questionData, ...newData } } : s
+      );
+      setIsDirty(true);
+      return updatedSlides;
+    });
   }, [activeSlideId]);
 
   // ========== SESSION FUNCTIONS ==========
@@ -930,6 +1135,7 @@ export const EditorProvider = ({ children }) => {
       canvas.style.opacity = '1';
     }
 
+    setIsDirty(true);
     showToast('Background reset');
   }, [showToast]);
 
@@ -986,24 +1192,28 @@ export const EditorProvider = ({ children }) => {
   // ========== HOOKS ==========
   const presentation = usePresentation(slides, setActiveSlideId, showToast);
   const animations = useAnimations(activeSlideId, selectedField, showToast);
-  const transitions = useTransitions(slides, activeSlideId, presentation.isPresenting, showToast);
+  const transitions = useTransitions(slides, activeSlideId, presentation?.isPresenting, showToast);
   const formatting = useFormatting(selectedField, activeSlideId, slides, setSlides, showToast);
   const drawing = useDrawing(showToast);
   const clipboard = useClipboard(selectedField, slides, activeSlideId, setSlides, setActiveSlideId, showToast);
 
   // ========== RENDER BOX FUNCTION ==========
   const renderBox = useCallback((field, placeholder, className = "", displayCondition = true) => {
-    if (!displayCondition) return null;
+    if (!displayCondition || isLoading) return null;
     
     const currentSlide = slides.find(s => s.id === activeSlideId);
-    const hasContent = currentSlide && currentSlide[field] && currentSlide[field].trim() !== "";
-    const fieldStyle = currentSlide?.[`${field}Style`] || {};
+    
+    if (!currentSlide) return null;
+    
+    const hasContent = currentSlide[field] && currentSlide[field].trim() !== "";
+    const fieldStyle = currentSlide[`${field}Style`] || {};
     const elementId = `element-${activeSlideId}-${field}`;
-    const elementAnimation = animations.animations[elementId];
+    const elementAnimation = animations?.animations?.[elementId];
 
     return (
       <div 
         id={elementId} 
+        key={`${activeSlideId}-${field}-${currentSlide[field]?.length || 0}`}
         className={`${className} ${selectedField === field ? 'active-editing' : ''} editable-box ${elementAnimation ? 'has-animation' : ''}`}
         contentEditable 
         suppressContentEditableWarning 
@@ -1021,43 +1231,62 @@ export const EditorProvider = ({ children }) => {
           lineHeight: fieldStyle.lineHeight,
           marginTop: fieldStyle.marginTop,
           marginBottom: fieldStyle.marginBottom,
-          animation: elementAnimation ? animations.getAnimationStyle(elementAnimation) : undefined
+          animation: elementAnimation ? animations?.getAnimationStyle(elementAnimation) : undefined
         }}
         onFocus={() => setSelectedField(field)}
         onBlur={(e) => { 
           const text = e.target.innerText; 
-          setSlides(prev => prev.map(s => 
-            s.id === activeSlideId ? { ...s, [field]: text } : s
-          )); 
+          setSlides(prev => {
+            const updatedSlides = prev.map(s => 
+              s.id === activeSlideId ? { ...s, [field]: text } : s
+            );
+            setIsDirty(true);
+            return updatedSlides;
+          }); 
         }}
         onClick={(e) => { 
-          if (clipboard.isPainterActive) clipboard.applyFormat(e); 
+          if (clipboard?.isPainterActive) clipboard.applyFormat(e); 
           e.stopPropagation(); 
         }}
       >
-        {currentSlide?.[field] || ""}
+        {currentSlide[field] || ""}
       </div>
     );
-  }, [slides, activeSlideId, selectedField, selectedFont, animations, clipboard, setSlides]);
+  }, [slides, activeSlideId, selectedField, selectedFont, animations, clipboard, isLoading]);
 
   // ========== KEYBOARD SHORTCUTS ==========
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.ctrlKey && e.key === 'c') { e.preventDefault(); clipboard.handleCopy(); }
-      if (e.ctrlKey && e.key === 'x') { e.preventDefault(); clipboard.handleCut(); }
-      if (e.ctrlKey && e.key === 'v') { if (!selectedField) { e.preventDefault(); clipboard.handlePaste(); } }
-      if (e.altKey && e.shiftKey && e.key === 'S') { e.preventDefault(); formatting.toggleStrikethrough(); }
-      if (e.ctrlKey && e.key === '=' && !e.shiftKey) { e.preventDefault(); formatting.toggleSubscript(); }
-      if (e.ctrlKey && e.shiftKey && e.key === '=') { e.preventDefault(); formatting.toggleSuperscript(); }
+      if (isLoading) return;
+      
+      if (e.ctrlKey && e.key === 's') { 
+        e.preventDefault(); 
+        savePresentation(true);
+      }
+      if (e.ctrlKey && e.key === 'c') { e.preventDefault(); clipboard?.handleCopy(); }
+      if (e.ctrlKey && e.key === 'x') { e.preventDefault(); clipboard?.handleCut(); }
+      if (e.ctrlKey && e.key === 'v') { if (!selectedField) { e.preventDefault(); clipboard?.handlePaste(); } }
+      if (e.altKey && e.shiftKey && e.key === 'S') { e.preventDefault(); formatting?.toggleStrikethrough(); }
+      if (e.ctrlKey && e.key === '=' && !e.shiftKey) { e.preventDefault(); formatting?.toggleSubscript(); }
+      if (e.ctrlKey && e.shiftKey && e.key === '=') { e.preventDefault(); formatting?.toggleSuperscript(); }
       if (e.ctrlKey && e.key === 'f') { e.preventDefault(); if (!selectedField) { showToast("Please select a text field first"); return; } setShowSearchDialog(true); }
       if (e.ctrlKey && e.key === 'a') { e.preventDefault(); handleSelectAll(); }
       if (e.ctrlKey && e.key === 'h') { e.preventDefault(); if (!selectedField) { showToast("Please select a text field first"); return; } setShowSearchDialog(true); }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedField, clipboard, formatting, handleSelectAll, showToast]);
+  }, [isLoading, selectedField, clipboard, formatting, handleSelectAll, showToast, savePresentation]);
 
   const value = {
+    // Loading
+    isLoading,
+    
+    // Save
+    isDirty,
+    isSaving,
+    lastSaved,
+    savePresentation,
+
     // Basic
     currentTheme, setCurrentTheme,
     activeTab, setActiveTab,
@@ -1214,6 +1443,9 @@ export const EditorProvider = ({ children }) => {
     handleExportResults,
     handleShareQuestion,
     handleCopyQuestionId,
+    isPresenting, 
+    startPresentation, 
+    endPresentation ,
 
     // Hooks
     ...presentation,

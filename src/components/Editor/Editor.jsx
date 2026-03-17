@@ -6,15 +6,17 @@ import Ribbon from './Ribbon';
 import SlideSidebar from './SlideSidebar';
 import SlideCanvas from './SlideCanvas';
 import PropertiesPanel from './PropertiesPanel';
+import LobbyView from '../LiveSession/LobbyView';
 import { Modals } from './Modals';
 import { Panels } from './Panels';
 import PresentationMode from './Presentation/PresentationMode';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Loader2 } from 'lucide-react';
 import '../../styles/Editor.css';
 
 // المكون الداخلي الذي يستخدم الـ Context
 const EditorContent = () => {
   const {
+    isLoading,
     viewMode,
     showOutline,
     statusMessage,
@@ -29,6 +31,19 @@ const EditorContent = () => {
     setShowBackgroundPanel,
     handleImageUpload
   } = useEditor();
+
+  if (isLoading) {
+    return (
+      <div className="editor-loading-screen">
+        <Loader2 size={48} className="spinning" />
+        <p>Loading your project...</p>
+        <small>Preparing the presentation</small>
+      </div>
+    );
+  }
+  if (isPresenting) {
+    return <LobbyView />;
+  }
 
   return (
     <div className="editor-page">

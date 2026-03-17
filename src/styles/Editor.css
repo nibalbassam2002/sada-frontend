@@ -13056,3 +13056,528 @@ td {
   color: #166534 !important;
   border-color: #10b981 !important;
 }
+/* ===== Editor Header Styles ===== */
+.top-nav-bar {
+  height: 64px;
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid var(--sada-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1.5px solid var(--sada-orange);
+  background: white;
+  color: var(--sada-orange);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-back:hover {
+  background: var(--sada-orange);
+  color: white;
+  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2);
+}
+
+.title-status-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.title-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.inline-title-input {
+  border: 1px solid transparent;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 16px;
+  outline: none;
+  width: 250px;
+  transition: all 0.2s;
+}
+
+.inline-title-input:hover {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.inline-title-input:focus {
+  background: #ffffff;
+  border-color: var(--sada-orange);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.inline-title-input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+/* Save Status Indicator */
+.save-indicator {
+  position: relative;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 20px;
+  transition: all 0.2s;
+}
+
+.save-indicator:hover {
+  background: #f8fafc;
+}
+
+.save-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.save-status.saved {
+  background: #f0fdf4;
+  color: #059669;
+}
+
+.save-status.unsaved {
+  background: #fef9e7;
+  color: #b45309;
+}
+
+.save-status.saving {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.save-status.offline {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.save-time {
+  font-size: 10px;
+  opacity: 0.8;
+  margin-left: 4px;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Save Tooltip */
+.save-tooltip {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 8px;
+  background: #1e293b;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.save-tooltip::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 8px;
+  height: 8px;
+  background: #1e293b;
+}
+
+/* Action Buttons */
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #475569;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 13px;
+  gap: 6px;
+}
+
+.action-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.action-btn.can-save {
+  color: #f59e0b;
+}
+
+.action-btn.can-save:hover {
+  background: #fef9e7;
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.more-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.more-btn:hover {
+  background: #f1f5f9;
+  color: #f59e0b;
+}
+
+.btn-present {
+  background: #f59e0b !important;
+  color: white !important;
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  font-weight: 600;
+  gap: 8px !important;
+  margin-left: 8px;
+}
+
+.btn-present:hover {
+  background: #d97706 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.v-divider {
+  width: 1px;
+  height: 24px;
+  background: #e2e8f0;
+  margin: 0 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .inline-title-input {
+    width: 150px;
+  }
+  
+  .btn-present span {
+    display: none;
+  }
+  
+  .save-time {
+    display: none;
+  }
+}
+/* شاشة التحميل */
+.editor-loading-screen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  color: #1e293b;
+}
+
+.editor-loading-screen p {
+  margin-top: 20px;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #334155;
+}
+
+.editor-loading-screen small {
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+/* حركة الدوران للودر */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spinning {
+  animation: spin 1.5s linear infinite;
+  color: #f59e0b;
+}
+/* تنسيقات مصغر الشريحة */
+.slide-preview-box {
+  width: 160px;
+  aspect-ratio: 16 / 9;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.thumbnail-scale-wrapper {
+  width: 960px;
+  height: 540px;
+  transform: scale(0.1666);
+  transform-origin: top left;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.thumbnail-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  background: transparent;
+}
+
+/* إخفاء العناصر غير المرغوب فيها في المصغر */
+.thumbnail-scale-wrapper .editable-box:empty:before {
+  display: none !important;
+}
+
+.thumbnail-scale-wrapper .editable-box {
+  border: none !important;
+}
+/* أنماط مصغر الشريحة (Thumbnail) - تأكد من وجودها */
+.slides-list-sidebar {
+  width: 240px;
+  background: #f8fafc;
+  border-right: 1px solid var(--sada-border);
+  padding: 20px 15px;
+  overflow-y: auto;
+}
+
+.slide-item {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 8px;
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  align-items: center;
+}
+
+.slide-item.active {
+  background: #fff;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+}
+
+.slide-num {
+  font-size: 12px;
+  font-weight: 600;
+  color: #cbd5e1;
+  width: 20px;
+  flex-shrink: 0;
+}
+
+/* هذا هو المربع الأبيض الذي يظهر فيه المصغر */
+.slide-preview-box {
+  width: 160px;          /* عرض ثابت */
+  height: 90px;          /* ارتفاع ثابت (نسبة 16:9) */
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;      /* إخفاء أي محتوى زائد */
+  position: relative;
+  flex-shrink: 0;
+}
+
+.slide-item.active .slide-preview-box {
+  border: 2px solid var(--sada-orange);
+}
+
+/* الحاوية التي تقوم بتصغير المحتوى */
+.thumbnail-scale-wrapper {
+  width: 960px;          /* العرض الأصلي للشريحة */
+  height: 540px;         /* الارتفاع الأصلي للشريحة */
+  transform: scale(0.1666); /* 160/960 = 0.1666, 90/540 = 0.1666 */
+  transform-origin: top left;
+  pointer-events: none;  /* منع التفاعل مع العناصر الداخلية */
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* طبقة شفافة لمنع النقر على المحتوى */
+.thumbnail-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* إخفاء الـ placeholder في وضع المصغر */
+.thumbnail-scale-wrapper [contenteditable="true"]:empty:before {
+  display: none !important;
+}
+
+/* إخفاء أي حدود أو تأثيرات غير مرغوب فيها */
+.thumbnail-scale-wrapper [contenteditable="true"] {
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+}
+
+.btn-delete-slide {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  background: var(--danger-light);
+  color: var(--danger);
+  border: none;
+  border-radius: 4px;
+  padding: 3px;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 20;
+}
+
+.slide-item:hover .btn-delete-slide { 
+  opacity: 1; 
+}
+
+.btn-add-slide-ghost {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border: 2px dashed #cbd5e1;
+  background: transparent;
+  color: #64748b;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.btn-add-slide-ghost:hover {
+  border-color: var(--sada-orange);
+  color: var(--sada-orange);
+  background: #fff;
+}
+/* التأكد أن الشاشة الأساسية تظهر بشكل صحيح */
+.main-editor-area {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f1f5f9; /* لون خلفية المنطقة المحيطة */
+  padding: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+/* حاوية الشريحة الرئيسية */
+.main-slide-container {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  z-index: 10;
+}
+
+/* التأكد أن الشريحة نفسها ليس لها خلفيات زائدة */
+.powerpoint-slide-surface {
+  width: 960px;
+  height: 540px;
+  position: relative;
+  overflow: hidden;
+  background-color: #ffffff; /* هذه الخلفية ضرورية */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 20;
+}
+
+/* إزالة أي خلفيات بيضاء زائدة من الطبقات */
+.content-layer,
+.images-layer,
+.tables-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent !important; /* مهم: إزالة أي خلفية */
+}
+
+/* التأكد أن طبقة المحتوى الرئيسية تظهر فوق الباقي */
+.content-layer {
+  z-index: 10;
+  background: transparent !important;
+}
+
+.images-layer {
+  z-index: 20;
+  background: transparent !important;
+}
+
+.tables-layer {
+  z-index: 30;
+  background: transparent !important;
+}

@@ -874,3 +874,12 @@ body {
     gap: 10px;
   }
 }
+html, body, #root {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.main-wrapper {
+  min-height: 100vh;
+  overflow: visible !important;
+}

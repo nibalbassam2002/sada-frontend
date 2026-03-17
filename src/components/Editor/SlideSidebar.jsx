@@ -2,6 +2,7 @@
 import React from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { useEditor } from './EditorContext';
+import SlideRenderer from './SlideRenderer';
 
 const SlideSidebar = () => {
   const { 
@@ -24,12 +25,16 @@ const SlideSidebar = () => {
             onClick={() => setActiveSlideId(slide.id)}
           >
             <span className="slide-num">{index + 1}</span>
+            
+            {/* مربع المعاينة المطور - يعرض محتوى حقيقي للشريحة */}
             <div className="slide-preview-box">
-              <div className="mini-content-preview">
-                <div className="mini-line"></div>
-                <div className="mini-line short"></div>
+              <div className="thumbnail-scale-wrapper">
+                <SlideRenderer slide={slide} isThumbnail={true} />
               </div>
+              {/* طبقة شفافة لمنع التفاعل داخل المصغر */}
+              <div className="thumbnail-overlay"></div>
             </div>
+
             <button className="btn-delete-slide" onClick={(e) => deleteSlide(e, slide.id)}>
               <Trash2 size={12} />
             </button>

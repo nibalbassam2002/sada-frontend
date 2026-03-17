@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import Presentations from './pages/Presentations'; 
 import Templates from './pages/Templates'; 
 import Editor from './pages/Editor'; 
+import JoinPage from './pages/JoinPage';
 
 
 // استيراد أنظمة حماية المسارات
@@ -24,11 +25,12 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* 1. الصفحة الرئيسية (متاحة للجميع) */}
+     
         <Route path="/" element={<LandingPage />} />
+        <Route path="/join"       element={<JoinPage />} />  
+        <Route path="/join/:code" element={<JoinPage />} />
 
-        {/* 2. مسارات الضيوف (ممنوعة على المسجلين) */}
-        {/* إذا حاول المسجل دخولها، سيتم تحويله تلقائياً للداشبورد */}
+       
         <Route 
           path="/login" 
           element={
