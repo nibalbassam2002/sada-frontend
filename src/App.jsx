@@ -11,6 +11,8 @@ import Presentations from './pages/Presentations';
 import Templates from './pages/Templates'; 
 import Editor from './pages/Editor'; 
 import JoinPage from './pages/JoinPage';
+import SessionPage from './pages/SessionPage';
+import DisplayPage from './pages/DisplayPage';
 
 
 // استيراد أنظمة حماية المسارات
@@ -73,10 +75,20 @@ function App() {
             </ProtectedRoute>
           } 
         />
-
+<Route
+  path="/session/:id"
+  element={
+    <ProtectedRoute>
+      <SessionPage />
+    </ProtectedRoute>
+  }
+/>
+<Route path="/display/:id" element={<DisplayPage />} />
       </Routes>
+      
     </Router>
   );
+  
 }
 
 export default App;

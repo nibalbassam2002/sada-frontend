@@ -7,9 +7,13 @@ import {
 } from 'lucide-react';
 import { useEditor } from '../EditorContext';
 import LobbyView from '../../LiveSession/LobbyView';
+import { useNavigate } from 'react-router-dom';
 import api from '../../../api/axios';
 
+
+
 const SessionGroup = () => {
+  const navigate = useNavigate();
   const { title, showToast, currentSlideIndex, slides } = useEditor();
   const presentationId = window.location.pathname.split('/').pop();
 
@@ -84,11 +88,10 @@ const SessionGroup = () => {
   };
 
   const handleLaunch = async () => {
-    // أغلق اللوبي فوراً — بدون انتظار الـ API
-    setShowLobby(false);
-    showToast('Presentation started!');
-    try { await api.post(`/sessions/${sessionId}/launch`); } catch {}
-  };
+  setShowLobby(false);
+  navigate(`/session/${presentationId}`); // ← انتقلي للصفحة الجديدة
+  try { await api.post(`/sessions/${sessionId}/launch`); } catch {}
+};
 
   const handleEnd = async () => {
     if (!window.confirm('End the current session?')) return;
