@@ -973,51 +973,47 @@ export const EditorProvider = ({ children }) => {
     showToast('Background applied');
   }, [backgroundType, backgroundColor, gradientStart, gradientEnd, gradientAngle, backgroundImage, backgroundTransparency, activeSlideId, showToast]);
 
-  // ========== QUESTION FUNCTIONS ==========
-  const convertToQuestion = useCallback((questionType) => {
-    setSlides(prev => {
-      const updatedSlides = prev.map(s => {
-        if (s.id === activeSlideId) {
-          let defaultOptions = [];
-          
-          if (questionType === 'multiple-choice') {
-            defaultOptions = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
-          } else if (questionType === 'true-false') {
-            defaultOptions = ['True', 'False'];
-          } else if (questionType === 'quiz') {
-            defaultOptions = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
-          } else {
-            defaultOptions = [];
-          }
 
-          return {
-            ...s,
-            layout: 'QUESTION',
-            questionType: questionType,
-            questionData: {
-              title: s.title || "Enter your question here...",
-              options: defaultOptions,
-              correctAnswer: null,
-              appearance: {
-                layoutMode: 'grid',
-                theme: 'light',
-                accentColor: '#f59e0b',
-                cardStyle: 'curved',
-                fontSize: 'medium',
-                showLetters: true,
-                gap: '20px'
-              }
-            }
-          };
-        }
-        return s;
-      });
-      setIsDirty(true);
-      return updatedSlides;
+const convertToQuestion = useCallback((questionType) => {
+  setSlides(prev => {
+    const updatedSlides = prev.map(s => {
+      if (s.id !== activeSlideId) return s;
+
+      // خيارات افتراضية حسب النوع — دائماً تُمسح القديمة
+      let defaultOptions = [];
+      if (questionType === 'multiple-choice' || questionType === 'quiz') {
+        defaultOptions = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
+      } else if (questionType === 'true-false') {
+        defaultOptions = ['True', 'False'];
+      }
+
+      return {
+        ...s,
+        layout: 'QUESTION',
+        questionType,
+        questionData: {
+          // لا نأخذ البيانات القديمة — نبدأ من صفر
+          title: s.title || '',
+          options: defaultOptions,
+          correctAnswer: null,
+          points: 10,
+          show_correct: 'after_timer',   // after_timer | manual | never
+          show_results: 'presenter',     // presenter | everyone | after_answer
+          appearance: {
+            layoutMode: 'grid',
+            accentColor: '#f59e0b',
+            cardStyle: 'curved',
+            showLetters: true,
+          },
+        },
+      };
     });
-    
-    showToast(`${questionType} question created`);
-  }, [activeSlideId, showToast]);
+    setIsDirty(true);
+    return updatedSlides;
+  });
+  showToast(`${questionType} question created`);
+}, [activeSlideId, showToast]);
+
 
   const toggleCorrectAnswer = useCallback((index) => {
     setSlides(prev => {

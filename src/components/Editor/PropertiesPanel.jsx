@@ -1,664 +1,473 @@
 // src/components/Editor/PropertiesPanel.jsx
+
 import React, { useState } from 'react';
 import {
-  Sparkles, Plus, Trash2, HelpCircle, Palette,
-  Settings2, ChevronRight, Info, XCircle,
-  CheckCircle2, Circle, Copy,
-  Grid, List, AlignJustify, Sun, Moon,
-  Eye, EyeOff, Clock, Users, Lock,
-  ChevronDown, ChevronUp, Sliders,
-  Type, Bold, Italic, Underline,
-  AlignLeft, AlignCenter, AlignRight,
-  Image, Square, Layers, RotateCw,
-  Download, Share2, BarChart3, PieChart,
-  TrendingUp, Filter, Search, Award,
-  Globe, Shield, Bell, Zap, Cloud,
-  MessageSquare, Target, Minus, Plus as PlusIcon
+  Sparkles, Plus, Trash2, CheckCircle2, Circle,
+  ChevronDown, ChevronUp, Clock, Eye, EyeOff,
+  Globe, Lock, Award, Palette, Grid, List,
+  Timer, AlertCircle, Info, Minus,
+  Plus as PlusIcon, Settings2, Sliders, XCircle
 } from 'lucide-react';
 import { useEditor } from './EditorContext';
 
+// ── Section header ─────────────────────────────────────────
+const Section = ({ icon, title, badge, children, defaultOpen = true }) => {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div style={SS.section}>
+      <div style={SS.sectionHeader} onClick={() => setOpen(!open)}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ color: '#f97316' }}>{icon}</span>
+          <span style={SS.sectionTitle}>{title}</span>
+          {badge && <span style={SS.badge}>{badge}</span>}
+        </div>
+        {open ? <ChevronUp size={13} color="#94a3b8" /> : <ChevronDown size={13} color="#94a3b8" />}
+      </div>
+      {open && <div style={SS.sectionBody}>{children}</div>}
+    </div>
+  );
+};
+
+// ── Row ────────────────────────────────────────────────────
+const Row = ({ label, children }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 8 }}>
+    <span style={SS.label}>{label}</span>
+    {children}
+  </div>
+);
+
+// ── PropertiesPanel ────────────────────────────────────────
 const PropertiesPanel = () => {
   const {
-    activeSlideId,
-    slides,
-    selectedField,
-    setSelectedField,
-    updateQuestionData,
-    toggleCorrectAnswer,
+    activeSlideId, slides, setSlides, setIsDirty,
+    selectedField, setSelectedField,
+    updateQuestionData, toggleCorrectAnswer,
+    pollSettings, setPollSettings,
     showToast,
-    pollSettings,
-    setPollSettings,
-    handleExportResults,
-    handleShareQuestion,
-    handleCopyQuestionId
   } = useEditor();
 
-  const [expandedSections, setExpandedSections] = useState({
-    content: true,
-    appearance: true,
-    timing: true,
-    privacy: true,
-    quiz: true,
-    advanced: false
-  });
+  const currentSlide    = slides.find(s => s.id === activeSlideId);
+  const isQuestion      = currentSlide?.layout === 'QUESTION';
+  const qType           = currentSlide?.questionType;
+  const qData           = currentSlide?.questionData || {};
+  const options         = qData.options || [];
+  const correctAnswer   = qData.correctAnswer;
+  const appearance      = qData.appearance || {};
+  const accentColor     = appearance.accentColor || '#f59e0b';
+  const isTF            = qType === 'true-false';
+  const hasChoices      = ['multiple-choice', 'quiz', 'true-false'].includes(qType);
 
-  const currentSlide = slides.find(s => s.id === activeSlideId);
-  const isQuestionLayout = currentSlide?.layout === 'QUESTION';
-
-  const questionData = currentSlide?.questionData || {};
-  const appearance = questionData.appearance || {
-    layoutMode: 'grid',
-    theme: 'light',
-    accentColor: '#f59e0b',
-    showLetters: true,
-    fontSize: 'medium',
-    cardStyle: 'curved'
-  };
-
-  const totalOptions = questionData.options?.length || 0;
+  // ── helpers ──────────────────────────────────────────────
+  const updateAppearance = (updates) =>
+    updateQuestionData({ appearance: { ...appearance, ...updates } });
 
   const addOption = () => {
-    const currentOptions = questionData.options || [];
-    if (currentSlide?.questionType === 'true-false') {
-      showToast("True/False options are fixed");
-      return;
-    }
-    if (currentOptions.length >= 10) {
-      showToast("Maximum 10 options allowed");
-      return;
-    }
-    updateQuestionData({ options: [...currentOptions, `Option ${currentOptions.length + 1}`] });
+    if (isTF) return showToast('True/False options are fixed');
+    if (options.length >= 10) return showToast('Maximum 10 options');
+    updateQuestionData({ options: [...options, `Option ${options.length + 1}`] });
   };
 
-  const removeOption = (index) => {
-    const currentOptions = questionData.options || [];
-    if (currentSlide?.questionType === 'true-false') {
-      showToast("True/False options cannot be removed");
-      return;
-    }
-    if (currentOptions.length <= 2) {
-      showToast("Minimum 2 options required");
-      return;
-    }
-    const newOptions = currentOptions.filter((_, i) => i !== index);
-    let newCorrectAnswer = questionData.correctAnswer;
-    if (questionData.correctAnswer === index) {
-      newCorrectAnswer = null;
-    } else if (questionData.correctAnswer > index) {
-      newCorrectAnswer = questionData.correctAnswer - 1;
-    }
-    updateQuestionData({ options: newOptions, correctAnswer: newCorrectAnswer });
+  const removeOption = (i) => {
+    if (isTF) return;
+    if (options.length <= 2) return showToast('Minimum 2 options');
+    const newOpts = options.filter((_, idx) => idx !== i);
+    let newCorrect = correctAnswer;
+    if (correctAnswer === i) newCorrect = null;
+    else if (correctAnswer > i) newCorrect = correctAnswer - 1;
+    updateQuestionData({ options: newOpts, correctAnswer: newCorrect });
   };
 
-  const updateOptionText = (index, text) => {
-    const currentOptions = [...(questionData.options || [])];
-    if (currentSlide?.questionType === 'true-false') {
-      showToast("True/False options cannot be edited");
-      return;
-    }
-    currentOptions[index] = text;
-    updateQuestionData({ options: currentOptions });
+  const updateOption = (i, val) => {
+    if (isTF) return;
+    const newOpts = [...options];
+    newOpts[i] = val;
+    updateQuestionData({ options: newOpts });
   };
 
-  const updateTimer = (seconds) => {
-    setPollSettings(prev => ({ ...prev, timer: Math.max(0, Math.min(300, seconds)) }));
-  };
-
-  const updateQuizPoints = (points) => {
-    updateQuestionData({ points: Math.max(1, Math.min(100, points)) });
-  };
-
-  const toggleSection = (section) => {
-    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
-  };
-
-  const getQuestionTypeIcon = () => {
-    switch (currentSlide?.questionType) {
-      case 'multiple-choice': return <List size={18} />;
-      case 'true-false': return <Target size={18} />;
-      case 'quiz': return <Zap size={18} />;
-      case 'word-cloud': return <Cloud size={18} />;
-      case 'open-ended': return <MessageSquare size={18} />;
-      default: return <HelpCircle size={18} />;
-    }
-  };
-
-  if (!isQuestionLayout) {
+  // ── Empty state ──────────────────────────────────────────
+  if (!isQuestion) {
     return (
-      <aside className="properties-panel-sidebar">
-        <div className="properties-header">
-          <div className="properties-header-left">
-            <Sliders size={14} className="properties-icon" />
-            <span className="properties-title">PROPERTIES</span>
-          </div>
+      <aside style={SS.root}>
+        <div style={SS.header}>
+          <Sliders size={13} color="#f97316" />
+          <span style={SS.headerTitle}>PROPERTIES</span>
         </div>
-        <div className="empty-state">
-          <div className="empty-icon"><Sparkles size={32} /></div>
-          <h3 className="empty-title">No Question Selected</h3>
-          <p className="empty-description">Convert a slide to Question to see properties</p>
+        <div style={SS.empty}>
+          <Sparkles size={32} color="#e2e8f0" />
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#94a3b8' }}>No Question Selected</span>
+          <span style={{ fontSize: 11, color: '#cbd5e1', textAlign: 'center' }}>
+            Convert a slide to a Question to see properties
+          </span>
         </div>
       </aside>
     );
   }
 
   return (
-    <aside className="properties-panel-sidebar">
-      <div className="properties-header">
-        <div className="properties-header-left">
-          <Sliders size={14} className="properties-icon" />
-          <span className="properties-title">QUESTION PROPERTIES</span>
-        </div>
+    <aside style={SS.root}>
+      {/* Header */}
+      <div style={SS.header}>
+        <Sliders size={13} color="#f97316" />
+        <span style={SS.headerTitle}>QUESTION PROPERTIES</span>
         {selectedField && (
-          <button className="properties-clear-btn" onClick={() => setSelectedField(null)}>
-            <XCircle size={14} />
+          <button style={SS.clearBtn} onClick={() => setSelectedField(null)}>
+            <XCircle size={13} />
           </button>
         )}
       </div>
 
-      <div className="properties-scroll-area">
-        {/* نوع السؤال مع أيقونة */}
-        <div className="question-type-banner">
-          
-          <span className="question-type-name">
-            {currentSlide?.questionType === 'multiple-choice' ? 'Multiple Choice' :
-             currentSlide?.questionType === 'true-false' ? 'True / False' :
-             currentSlide?.questionType === 'quiz' ? 'Quiz Mode' :
-             currentSlide?.questionType === 'word-cloud' ? 'Word Cloud' :
-             currentSlide?.questionType === 'open-ended' ? 'Open Ended' : 'Question'}
-          </span>
-          
-        </div>
-
-        {/* قسم الخيارات */}
-        {(currentSlide?.questionType === 'multiple-choice' || 
-          currentSlide?.questionType === 'quiz' || 
-          currentSlide?.questionType === 'true-false') && (
-          <div className="properties-section">
-            <div className="section-header" onClick={() => toggleSection('content')}>
-              <div className="section-header-left">
-                <HelpCircle size={14} className="section-icon" />
-                <span className="section-title">ANSWER CHOICES</span>
-                <span className="options-count">{totalOptions}/10</span>
-              </div>
-              {expandedSections.content ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            </div>
-            
-            {expandedSections.content && (
-              <div className="section-content compact">
-                <div className="options-container compact">
-                  {questionData.options?.map((opt, i) => {
-                    const isCorrect = questionData.correctAnswer === i;
-                    const isTrueFalse = currentSlide?.questionType === 'true-false';
-                    
-                    return (
-                      <div key={i} className={`option-item compact ${isCorrect ? 'correct' : ''}`}>
-                        <div className="option-content compact">
-                          <button 
-                            className={`correct-toggle-btn small ${isCorrect ? 'active' : ''}`}
-                            onClick={() => toggleCorrectAnswer(i)}
-                            title={isCorrect ? "Correct Answer" : "Mark as Correct"}
-                          >
-                            {isCorrect ? 
-                              <CheckCircle2 size={16} color="#10b981" /> : 
-                              <Circle size={16} color="#94a3b8" />
-                            }
-                          </button>
-                          
-                          <input 
-                            type="text"
-                            defaultValue={opt}
-                            onFocus={(e) => e.target.select()}
-                            onChange={(e) => updateOptionText(i, e.target.value)}
-                            placeholder={isTrueFalse ? (i === 0 ? 'True' : 'False') : `Enter option ${i+1}...`}
-                            className={`option-input compact ${isTrueFalse ? (i === 0 ? 'true-option' : 'false-option') : ''}`}
-                            readOnly={isTrueFalse}
-                          />
-                          
-                          {!isTrueFalse && (
-                            <button 
-                              className="option-control-btn small delete"
-                              onClick={() => removeOption(i)}
-                              disabled={totalOptions <= 2}
-                              title="Remove option"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {currentSlide?.questionType !== 'true-false' && totalOptions < 10 && (
-                  <button className="add-option-btn compact" onClick={addOption}>
-                    <Plus size={14} />
-                    <span>Add Option</span>
-                  </button>
-                )}
-
-                {currentSlide?.questionType === 'true-false' && (
-                  <div className="info-message compact">
-                    <Info size={12} />
-                    <span>True/False options are fixed. Click <CheckCircle2 size={10} color="#10b981" /> to mark correct answer.</span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* قسم Quiz Mode - نقاط ونتائج فورية */}
-        {currentSlide?.questionType === 'quiz' && (
-          <div className="properties-section">
-            <div className="section-header" onClick={() => toggleSection('quiz')}>
-              <div className="section-header-left">
-                <Award size={14} className="section-icon" />
-                <span className="section-title">QUIZ SETTINGS</span>
-              </div>
-              {expandedSections.quiz ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            </div>
-            
-            {expandedSections.quiz && (
-              <div className="section-content">
-                {/* نقاط السؤال */}
-                <div className="property-row">
-                  <label className="property-label">Points per question</label>
-                  <div className="points-control">
-                    <button 
-                      className="points-btn"
-                      onClick={() => updateQuizPoints((questionData.points || 10) - 5)}
-                    >
-                      <Minus size={14} />
-                    </button>
-                    <input 
-                      type="number"
-                      min="1"
-                      max="100"
-                      value={questionData.points || 10}
-                      onChange={(e) => updateQuizPoints(parseInt(e.target.value) || 10)}
-                      className="points-input"
-                    />
-                    <button 
-                      className="points-btn"
-                      onClick={() => updateQuizPoints((questionData.points || 10) + 5)}
-                    >
-                      <PlusIcon size={14} />
-                    </button>
-                    <span className="points-unit">points</span>
-                  </div>
-                </div>
 
 
-                {/* خيارات العرض الفوري */}
-                <div className="quiz-options">
-                  <label className="checkbox-label">
-                    <input 
-                      type="checkbox"
-                      checked={questionData.showCorrectImmediately !== false}
-                      onChange={(e) => updateQuestionData({ showCorrectImmediately: e.target.checked })}
-                    />
-                    <span>Show correct answer immediately</span>
-                  </label>
+      <div style={{ overflowY: 'auto', flex: 1 }}>
 
-                  <label className="checkbox-label">
-                    <input 
-                      type="checkbox"
-                      checked={questionData.showPoints !== false}
-                      onChange={(e) => updateQuestionData({ showPoints: e.target.checked })}
-                    />
-                    <span>Show points earned</span>
-                  </label>
-
-                  <label className="checkbox-label">
-                    <input 
-                      type="checkbox"
-                      checked={questionData.showLeaderboard || false}
-                      onChange={(e) => updateQuestionData({ showLeaderboard: e.target.checked })}
-                    />
-                    <span>Show leaderboard after quiz</span>
-                  </label>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* قسم المظهر */}
-        <div className="properties-section">
-          <div className="section-header" onClick={() => toggleSection('appearance')}>
-            <div className="section-header-left">
-              <Palette size={14} className="section-icon" />
-              <span className="section-title">VISUAL STYLE</span>
-            </div>
-            {expandedSections.appearance ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          </div>
-          
-          {expandedSections.appearance && (
-            <div className="section-content">
-              {/* Layout Mode */}
-              {(currentSlide?.questionType === 'multiple-choice' || 
-                currentSlide?.questionType === 'quiz' || 
-                currentSlide?.questionType === 'true-false') && (
-                <div className="property-row">
-                  <label className="property-label">Layout</label>
-                  <div className="layout-buttons">
-                    <button 
-                      className={`layout-btn ${appearance.layoutMode === 'grid' ? 'active' : ''}`}
-                      onClick={() => updateQuestionData({ appearance: { ...appearance, layoutMode: 'grid' } })}
-                    >
-                      <Grid size={14} /> Grid
-                    </button>
-                    <button 
-                      className={`layout-btn ${appearance.layoutMode === 'list' ? 'active' : ''}`}
-                      onClick={() => updateQuestionData({ appearance: { ...appearance, layoutMode: 'list' } })}
-                    >
-                      <List size={14} /> List
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Accent Color */}
-              <div className="property-row">
-                <label className="property-label">Accent Color</label>
-                <div className="color-palette-container">
-                  <div className="custom-color-picker compact">
-                    <div className="custom-color-preview small" style={{ backgroundColor: appearance.accentColor }}>
-                      <input 
-                        type="color" 
-                        value={appearance.accentColor} 
-                        onChange={(e) => updateQuestionData({ appearance: { ...appearance, accentColor: e.target.value } })}
-                        className="color-input-hidden"
-                        title="Choose custom color"
-                      />
+        {/* ══ الخيارات ══════════════════════════════════ */}
+        {hasChoices && (
+          <Section icon={<CheckCircle2 size={13} />} title="ANSWER CHOICES" badge={`${options.length}/10`}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              {options.map((opt, i) => {
+                const isCorrect = correctAnswer === i;
+                return (
+                  <div key={i} style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    padding: '6px 8px',
+                    background: isCorrect ? '#f0fdf4' : '#f8fafc',
+                    border: `1.5px solid ${isCorrect ? '#10b981' : '#e2e8f0'}`,
+                    borderRadius: 8, transition: 'all .15s',
+                  }}>
+                    {/* حرف الخيار */}
+                    <div style={{
+                      width: 20, height: 20, borderRadius: '50%',
+                      background: isTF
+                        ? (i === 0 ? '#10b981' : '#ef4444')
+                        : accentColor,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 10, fontWeight: 900, color: '#fff', flexShrink: 0,
+                    }}>
+                      {isTF
+                        ? (i === 0 ? '✓' : '✗')
+                        : String.fromCharCode(65 + i)}
                     </div>
-                    <span className="custom-color-label small">Custom Color</span>
-                    <span className="custom-color-value small">{appearance.accentColor}</span>
-                  </div>
-                </div>
-              </div>
 
-              {/* Card Shape */}
-              {(currentSlide?.questionType === 'multiple-choice' || 
-                currentSlide?.questionType === 'quiz' || 
-                currentSlide?.questionType === 'true-false') && (
-                <div className="property-row">
-                  <label className="property-label">Card Shape</label>
-                  <select 
-                    value={appearance.cardStyle}
-                    onChange={(e) => updateQuestionData({ appearance: { ...appearance, cardStyle: e.target.value } })}
-                    className="property-select"
-                  >
-                    <option value="sharp">Sharp Corners</option>
-                    <option value="curved">Curved Corners</option>
-                    <option value="rounded">Rounded</option>
-                  </select>
-                </div>
-              )}
-
-              {/* Show Letters */}
-              {(currentSlide?.questionType === 'multiple-choice' || 
-                currentSlide?.questionType === 'quiz' || 
-                currentSlide?.questionType === 'true-false') && (
-                <label className="checkbox-label">
-                  <input 
-                    type="checkbox"
-                    checked={appearance.showLetters}
-                    onChange={(e) => updateQuestionData({ appearance: { ...appearance, showLetters: e.target.checked } })}
-                  />
-                  <span>Show A, B, C indicators</span>
-                </label>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* قسم التوقيت */}
-        <div className="properties-section">
-          <div className="section-header" onClick={() => toggleSection('timing')}>
-            <div className="section-header-left">
-              <Clock size={14} className="section-icon" />
-              <span className="section-title">TIMING</span>
-            </div>
-            <div className="section-header-right">
-              <span className="timing-summary">
-                {pollSettings.timer > 0 ? `${pollSettings.timer}s` : 'No limit'}
-              </span>
-              {expandedSections.timing ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            </div>
-          </div>
-          
-          {expandedSections.timing && (
-            <div className="section-content">
-              <div className="timing-preset-row">
-                <button 
-                  className={`timing-pill ${pollSettings.timer === 0 ? 'active' : ''}`}
-                  onClick={() => updateTimer(0)}
-                >
-                  Off
-                </button>
-                <button 
-                  className={`timing-pill ${pollSettings.timer === 15 ? 'active' : ''}`}
-                  onClick={() => updateTimer(15)}
-                >
-                  15s
-                </button>
-                <button 
-                  className={`timing-pill ${pollSettings.timer === 30 ? 'active' : ''}`}
-                  onClick={() => updateTimer(30)}
-                >
-                  30s
-                </button>
-                <button 
-                  className={`timing-pill ${pollSettings.timer === 60 ? 'active' : ''}`}
-                  onClick={() => updateTimer(60)}
-                >
-                  60s
-                </button>
-                <button 
-                  className={`timing-pill ${pollSettings.timer === 90 ? 'active' : ''}`}
-                  onClick={() => updateTimer(90)}
-                >
-                  90s
-                </button>
-                <button 
-                  className={`timing-pill ${pollSettings.timer === 120 ? 'active' : ''}`}
-                  onClick={() => updateTimer(120)}
-                >
-                  120s
-                </button>
-              </div>
-
-              <div className="custom-timer-compact">
-                <div className="custom-timer-header">
-                  <Clock size={12} />
-                  <span>Custom timer</span>
-                </div>
-                <div className="custom-timer-control">
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="300" 
-                    step="5"
-                    value={pollSettings.timer || 0}
-                    onChange={(e) => updateTimer(parseInt(e.target.value))}
-                    className="timer-slider"
-                  />
-                  <div className="timer-value-box">
-                    <input 
-                      type="number" 
-                      min="0" 
-                      max="300" 
-                      value={pollSettings.timer || 0}
-                      onChange={(e) => updateTimer(parseInt(e.target.value) || 0)}
-                      className="timer-number-input"
+                    {/* نص الخيار */}
+                    <input
+                      type="text"
+                      value={opt}
+                      readOnly={isTF}
+                      onChange={e => updateOption(i, e.target.value)}
+                      style={{
+                        flex: 1, border: 'none', background: 'transparent',
+                        fontSize: 12, fontWeight: 500, color: '#1e293b',
+                        outline: 'none', cursor: isTF ? 'default' : 'text',
+                      }}
                     />
-                    <span className="timer-unit">sec</span>
+
+                    {/* زر الإجابة الصحيحة */}
+                    <button
+                      onClick={() => toggleCorrectAnswer(i)}
+                      title={isCorrect ? 'Correct answer' : 'Mark as correct'}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}
+                    >
+                      {isCorrect
+                        ? <CheckCircle2 size={16} color="#10b981" />
+                        : <Circle size={16} color="#d1d5db" />}
+                    </button>
+
+                    {/* حذف */}
+                    {!isTF && (
+                      <button
+                        onClick={() => removeOption(i)}
+                        disabled={options.length <= 2}
+                        style={{
+                          background: 'none', border: 'none',
+                          cursor: options.length <= 2 ? 'not-allowed' : 'pointer',
+                          padding: 2, opacity: options.length <= 2 ? .3 : 1,
+                        }}
+                      >
+                        <Trash2 size={12} color="#ef4444" />
+                      </button>
+                    )}
                   </div>
+                );
+              })}
+
+              {/* إضافة خيار */}
+              {!isTF && options.length < 10 && (
+                <button onClick={addOption} style={SS.addBtn}>
+                  <Plus size={13} /> Add Option
+                </button>
+              )}
+
+              {isTF && (
+                <div style={SS.infoBox}>
+                  <Info size={11} /> True/False options are fixed. Click ✓ to mark correct.
                 </div>
+              )}
+            </div>
+          </Section>
+        )}
+
+        {/* ══ Quiz نقاط ══════════════════════════════════ */}
+        {qType === 'quiz' && (
+          <Section icon={<Award size={13} />} title="QUIZ SETTINGS">
+            <Row label="Points per correct answer">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <button
+                  onClick={() => updateQuestionData({ points: Math.max(1, (qData.points || 10) - 5) })}
+                  style={SS.counterBtn}
+                >
+                  <Minus size={12} />
+                </button>
+                <span style={{ fontSize: 16, fontWeight: 900, color: '#f97316', minWidth: 30, textAlign: 'center' }}>
+                  {qData.points || 10}
+                </span>
+                <button
+                  onClick={() => updateQuestionData({ points: Math.min(100, (qData.points || 10) + 5) })}
+                  style={SS.counterBtn}
+                >
+                  <PlusIcon size={12} />
+                </button>
+                <span style={{ fontSize: 11, color: '#94a3b8' }}>pts</span>
               </div>
+            </Row>
+          </Section>
+        )}
 
-              <div className="timer-status-simple">
-                <div className={`status-badge ${pollSettings.timer > 0 ? 'active' : 'inactive'}`}>
-                  {pollSettings.timer > 0 ? (
-                    <>
-                      <Bell size={12} />
-                      <span>Auto-submit in {pollSettings.timer}s</span>
-                    </>
-                  ) : (
-                    <>
-                      <Clock size={12} />
-                      <span>No time limit</span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        {/* ══ إعدادات الإجابة ════════════════════════════ */}
+        <Section icon={<Eye size={13} />} title="ANSWER SETTINGS">
+          <Row label="Show correct answer">
+            <select
+              value={qData.show_correct || 'after_timer'}
+              onChange={e => updateQuestionData({ show_correct: e.target.value })}
+              style={SS.select}
+            >
+              <option value="after_timer">After timer ends</option>
+              <option value="manual">Manually (I decide)</option>
+              <option value="never">Never</option>
+            </select>
+          </Row>
 
-        {/* قسم الخصوصية */}
-        <div className="properties-section">
-          <div className="section-header" onClick={() => toggleSection('privacy')}>
-            <div className="section-header-left">
-              <Lock size={14} className="section-icon" />
-              <span className="section-title">PRIVACY</span>
-            </div>
-            {expandedSections.privacy ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          </div>
-          
-          {expandedSections.privacy && (
-            <div className="section-content">
-              <label className="checkbox-label">
-                <input 
-                  type="checkbox"
-                  checked={pollSettings.isPrivate || false}
-                  onChange={(e) => setPollSettings(prev => ({ ...prev, isPrivate: e.target.checked }))}
-                />
-                <Shield size={14} />
-                <span>Anonymous responses</span>
-              </label>
-              
-              <label className="checkbox-label">
-                <input 
-                  type="checkbox"
-                  checked={pollSettings.showCount || false}
-                  onChange={(e) => setPollSettings(prev => ({ ...prev, showCount: e.target.checked }))}
-                />
-                <Eye size={14} />
-                <span>Show response count</span>
-              </label>
-            </div>
-          )}
-        </div>
-
-        {/* قسم متقدم */}
-        <div className="properties-section">
-          <div className="section-header" onClick={() => toggleSection('advanced')}>
-            <div className="section-header-left">
-              <Settings2 size={14} className="section-icon" />
-              <span className="section-title">ADVANCED</span>
-            </div>
-            <div className="section-header-right">
-              <span className="question-id-mini">Q{activeSlideId}</span>
-              {expandedSections.advanced ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            </div>
-          </div>
-          
-          {expandedSections.advanced && (
-            <div className="section-content">
-              <button 
-                className="advanced-action-btn primary"
-                onClick={handleExportResults}
-                title="Export results as JSON file"
-              >
-                <div className="advanced-action-icon">
-                  <Download size={16} />
-                </div>
-                <div className="advanced-action-content">
-                  <span className="advanced-action-title">Export Results</span>
-                  <span className="advanced-action-desc">Save responses as JSON</span>
-                </div>
-                <ChevronRight size={14} className="advanced-action-arrow" />
-              </button>
-
-              <button 
-                className="advanced-action-btn"
-                onClick={handleShareQuestion}
-                title="Copy question link to clipboard"
-              >
-                <div className="advanced-action-icon">
-                  <Share2 size={16} />
-                </div>
-                <div className="advanced-action-content">
-                  <span className="advanced-action-title">Share Question</span>
-                  <span className="advanced-action-desc">Copy link to this question</span>
-                </div>
-                <ChevronRight size={14} className="advanced-action-arrow" />
-              </button>
-
-              <div className="question-id-container">
-                <div className="question-id-label">
-                  <Globe size={12} />
-                  <span>Question ID:</span>
-                </div>
-                <div className="question-id-value">
-                  <code>Q{activeSlideId}</code>
-                  <button 
-                    className="copy-id-btn"
-                    onClick={handleCopyQuestionId}
-                    title="Copy Question ID"
+          <Row label="Show results to">
+            <div style={{ display: 'flex', gap: 4 }}>
+              {[
+                { val: 'presenter',    label: 'Me only',      color: '#6366f1' },
+                { val: 'everyone',     label: 'Everyone',     color: '#10b981' },
+                { val: 'after_answer', label: 'After answer', color: '#f97316' },
+              ].map(({ val, label, color }) => {
+                const active = (qData.show_results || 'presenter') === val;
+                return (
+                  <button
+                    key={val}
+                    onClick={() => updateQuestionData({ show_results: val })}
+                    style={{
+                      flex: 1, padding: '5px 2px', fontSize: 10,
+                      fontWeight: 700, borderRadius: 6, cursor: 'pointer',
+                      background: active ? color + '18' : '#f8fafc',
+                      color: active ? color : '#94a3b8',
+                      border: `1.5px solid ${active ? color : '#e2e8f0'}`,
+                      transition: 'all .15s',
+                    }}
                   >
-                    <Copy size={12} />
+                    {label}
                   </button>
-                </div>
-              </div>
-
-              <div className="question-metadata">
-                <div className="metadata-item">
-                  <span className="metadata-key">Type:</span>
-                  <span className="metadata-value">
-                    {currentSlide?.questionType === 'multiple-choice' ? 'Multiple Choice' :
-                     currentSlide?.questionType === 'true-false' ? 'True/False' :
-                     currentSlide?.questionType === 'quiz' ? 'Quiz Mode' :
-                     currentSlide?.questionType === 'word-cloud' ? 'Word Cloud' :
-                     currentSlide?.questionType === 'open-ended' ? 'Open Ended' : 'Question'}
-                  </span>
-                </div>
-                <div className="metadata-item">
-                  <span className="metadata-key">Options:</span>
-                  <span className="metadata-value">{totalOptions}</span>
-                </div>
-                <div className="metadata-item">
-                  <span className="metadata-key">Points:</span>
-                  <span className="metadata-value">{questionData.points || 10} each</span>
-                </div>
-                <div className="metadata-item">
-                  <span className="metadata-key">Created:</span>
-                  <span className="metadata-value">{new Date(activeSlideId).toLocaleDateString()}</span>
-                </div>
-              </div>
+                );
+              })}
             </div>
-          )}
-        </div>
+          </Row>
+        </Section>
+
+        {/* ══ المظهر ══════════════════════════════════════ */}
+        {hasChoices && (
+          <Section icon={<Palette size={13} />} title="VISUAL STYLE" defaultOpen={false}>
+
+            {/* لون */}
+            <Row label="Accent color">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{
+                  width: 28, height: 28, borderRadius: 6,
+                  background: accentColor, cursor: 'pointer',
+                  border: '2px solid #e2e8f0', position: 'relative', overflow: 'hidden',
+                }}>
+                  <input
+                    type="color" value={accentColor}
+                    onChange={e => updateAppearance({ accentColor: e.target.value })}
+                    style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '200%', height: '200%' }}
+                  />
+                </div>
+                {['#f59e0b','#ef4444','#3b82f6','#10b981','#8b5cf6','#f97316'].map(c => (
+                  <div
+                    key={c}
+                    onClick={() => updateAppearance({ accentColor: c })}
+                    style={{
+                      width: 20, height: 20, borderRadius: '50%', background: c,
+                      cursor: 'pointer', border: accentColor === c ? '2px solid #1e293b' : '2px solid transparent',
+                      transition: 'border .15s',
+                    }}
+                  />
+                ))}
+              </div>
+            </Row>
+
+            {/* شكل الكروت */}
+            <Row label="Card shape">
+              <div style={{ display: 'flex', gap: 4 }}>
+                {[
+                  { val: 'sharp',   label: 'Sharp' },
+                  { val: 'curved',  label: 'Curved' },
+                  { val: 'rounded', label: 'Pill' },
+                ].map(({ val, label }) => {
+                  const active = (appearance.cardStyle || 'curved') === val;
+                  return (
+                    <button
+                      key={val}
+                      onClick={() => updateAppearance({ cardStyle: val })}
+                      style={{
+                        flex: 1, padding: '5px 4px', fontSize: 10, fontWeight: 700,
+                        borderRadius: val === 'sharp' ? 2 : val === 'pill' ? 20 : 6,
+                        cursor: 'pointer',
+                        background: active ? '#fff7ed' : '#f8fafc',
+                        color: active ? '#f97316' : '#64748b',
+                        border: `1.5px solid ${active ? '#f97316' : '#e2e8f0'}`,
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </Row>
+
+            {/* Layout */}
+            <Row label="Layout">
+              <div style={{ display: 'flex', gap: 4 }}>
+                {[
+                  { val: 'grid', icon: <Grid size={12} />, label: 'Grid' },
+                  { val: 'list', icon: <List size={12} />, label: 'List' },
+                ].map(({ val, icon, label }) => {
+                  const active = (appearance.layoutMode || 'grid') === val;
+                  return (
+                    <button
+                      key={val}
+                      onClick={() => updateAppearance({ layoutMode: val })}
+                      style={{
+                        flex: 1, padding: '5px', fontSize: 10, fontWeight: 700,
+                        borderRadius: 6, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                        background: active ? '#fff7ed' : '#f8fafc',
+                        color: active ? '#f97316' : '#64748b',
+                        border: `1.5px solid ${active ? '#f97316' : '#e2e8f0'}`,
+                      }}
+                    >
+                      {icon} {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </Row>
+
+            {/* حروف A B C */}
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 11, color: '#475569', fontWeight: 600 }}>
+              <div
+                onClick={() => updateAppearance({ showLetters: !appearance.showLetters })}
+                style={{
+                  width: 14, height: 14, borderRadius: 4, cursor: 'pointer',
+                  border: `2px solid ${appearance.showLetters !== false ? '#f97316' : '#d1d5db'}`,
+                  background: appearance.showLetters !== false ? '#f97316' : '#fff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                {appearance.showLetters !== false && <span style={{ color: '#fff', fontSize: 9, fontWeight: 900 }}>✓</span>}
+              </div>
+              Show A, B, C labels
+            </label>
+          </Section>
+        )}
+
       </div>
 
-      <div className="properties-footer">
-        <div className="footer-stat">
-          <Users size={12} />
-          <span>0 responses</span>
-        </div>
-        <div className="footer-stat">
-          <Clock size={12} />
-          <span>{pollSettings.timer > 0 ? `${pollSettings.timer}s` : 'No timer'}</span>
-        </div>
-        <div className="footer-stat">
-          {pollSettings.isPrivate ? <Shield size={12} /> : <Globe size={12} />}
-        </div>
+      {/* Footer stats */}
+      <div style={SS.footer}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#64748b' }}>
+          <CheckCircle2 size={11} /> 0 responses
+        </span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#64748b' }}>
+          <Timer size={11} /> {pollSettings.timer > 0 ? `${pollSettings.timer}s` : 'No timer'}
+        </span>
       </div>
     </aside>
   );
+};
+
+// ── Styles ──────────────────────────────────────────────────
+const SS = {
+  root: {
+    width: 260, flexShrink: 0,
+    background: '#fff',
+    borderLeft: '1px solid #e2e8f0',
+    display: 'flex', flexDirection: 'column',
+    height: '100%', overflow: 'hidden',
+    fontFamily: "'Segoe UI', sans-serif",
+  },
+  header: {
+    display: 'flex', alignItems: 'center', gap: 6,
+    padding: '10px 12px 6px',
+    borderBottom: '1px solid #f1f5f9',
+    flexShrink: 0,
+  },
+  headerTitle: { fontSize: 11, fontWeight: 800, color: '#475569', letterSpacing: '.08em' },
+  clearBtn: { marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' },
+  empty: {
+    flex: 1, display: 'flex', flexDirection: 'column',
+    alignItems: 'center', justifyContent: 'center', gap: 10,
+    padding: 24,
+  },
+  section: { borderBottom: '1px solid #f1f5f9' },
+  sectionHeader: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '8px 12px', cursor: 'pointer',
+    userSelect: 'none',
+    ':hover': { background: '#f8fafc' },
+  },
+  sectionTitle: { fontSize: 11, fontWeight: 800, color: '#475569', letterSpacing: '.06em' },
+  sectionBody: { padding: '4px 12px 12px' },
+  badge: {
+    background: '#f1f5f9', color: '#64748b',
+    borderRadius: 20, padding: '1px 7px',
+    fontSize: 10, fontWeight: 700,
+  },
+  label: { fontSize: 10, fontWeight: 700, color: '#94a3b8', letterSpacing: '.06em', textTransform: 'uppercase' },
+  select: {
+    width: '100%', padding: '6px 8px', fontSize: 12, fontWeight: 600,
+    border: '1.5px solid #e2e8f0', borderRadius: 8,
+    background: '#f8fafc', color: '#1e293b',
+    cursor: 'pointer', outline: 'none',
+  },
+  addBtn: {
+    display: 'flex', alignItems: 'center', gap: 5,
+    padding: '6px 10px', fontSize: 11, fontWeight: 700,
+    border: '1.5px dashed #e2e8f0', borderRadius: 8,
+    background: '#f8fafc', color: '#64748b', cursor: 'pointer',
+    width: '100%', justifyContent: 'center',
+    transition: 'all .15s',
+  },
+  infoBox: {
+    display: 'flex', alignItems: 'center', gap: 5,
+    padding: '6px 10px', fontSize: 10, color: '#64748b',
+    background: '#f8fafc', border: '1px solid #e2e8f0',
+    borderRadius: 8,
+  },
+  counterBtn: {
+    width: 26, height: 26, borderRadius: 6,
+    border: '1.5px solid #e2e8f0', background: '#f8fafc',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    cursor: 'pointer',
+  },
+  footer: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '8px 12px',
+    borderTop: '1px solid #f1f5f9',
+    flexShrink: 0,
+    background: '#fafafa',
+  },
 };
 
 export default PropertiesPanel;

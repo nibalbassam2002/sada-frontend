@@ -83,7 +83,7 @@ function App() {
     </ProtectedRoute>
   }
 />
-<Route path="/display/:id" element={<DisplayPage />} />
+<Route path="/display/:sessionId" element={<DisplayPage />} />
       </Routes>
       
     </Router>

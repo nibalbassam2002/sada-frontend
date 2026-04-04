@@ -1,7 +1,7 @@
 .theme-master {
     position: absolute;
     inset: 0;
-    background: #ffffff;
+    background: transparent;
     overflow: hidden;
 }
 
