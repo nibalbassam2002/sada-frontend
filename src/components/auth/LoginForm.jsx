@@ -8,7 +8,6 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -45,21 +44,20 @@ const LoginForm = () => {
   };
 
   const handleForgotPassword = async () => {
-    const email = prompt("Please enter your email to reset password:");
+    const email = prompt('Please enter your email to reset password:');
     if (!email) return;
     try {
       const response = await api.post('/forgot-password', { email });
       alert(response.data.message);
     } catch (error) {
-      alert(error.response?.data?.message || "Error sending email");
+      alert(error.response?.data?.message || 'Error sending email');
     }
   };
 
-  // تعريف العنوان مع سهم الرجوع ليكون بجانبه
-  const pageTitle = (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-      <Link to="/" style={{ color: 'inherit', display: 'flex', alignItems: 'center' }}>
-        <ArrowLeft size={26} strokeWidth={2.5} />
+ const pageTitle = (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: '12px' }}>
+    <Link to="/" style={{ color: 'inherit', display: 'flex', alignItems: 'center' }}>
+      <ArrowLeft size={24} strokeWidth={2.5} />
       </Link>
       <span>Welcome Back</span>
     </div>
@@ -67,15 +65,16 @@ const LoginForm = () => {
 
   return (
     <AuthLayout title={pageTitle} subtitle="Enter your details to continue to SADA">
-      <form className="main-form" onSubmit={handleLogin} style={{ marginTop: '20px' }}>
+      <form onSubmit={handleLogin} style={{ marginTop: '24px' }}>
 
-        {error && <div style={{ color: '#ef4444', fontSize: '13px', marginBottom: '15px', fontWeight: 'bold', textAlign: 'center' }}>{error}</div>}
+        {error && <div className="error-msg">{error}</div>}
 
         <div className="input-group">
-          <label>Email Address</label>
+          <label htmlFor="email">Email Address</label>
           <div className="input-field">
-            <Mail size={18} color="#94a3b8" />
+            <Mail size={18} />
             <input
+              id="email"
               type="email"
               placeholder="name@company.com"
               required
@@ -85,50 +84,41 @@ const LoginForm = () => {
         </div>
 
         <div className="input-group">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <label style={{ marginBottom: 0 }}>Password</label>
-            <span
-              onClick={handleForgotPassword}
-              className="forgot-link"
-              style={{ cursor: 'pointer', color: '#f59e0b', fontSize: '12px', fontWeight: '500' }}
-            >
+          <div className="password-label-row">
+            <label htmlFor="password">Password</label>
+            <span className="forgot-link" onClick={handleForgotPassword}>
               Forgot password?
             </span>
           </div>
-
           <div className="input-field">
-            <Lock size={18} color="#94a3b8" />
+            <Lock size={18} />
             <input
-              type={showPassword ? "text" : "password"}
-              placeholder="********"
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter your password"
               required
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             />
-            <div className="eye-icon" onClick={() => setShowPassword(!showPassword)} style={{ cursor: 'pointer' }}>
+            <div className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </div>
           </div>
         </div>
 
         <button type="submit" className="btn-auth-submit" disabled={loading}>
-          {loading ? 'Processing...' : 'Login'} <ArrowRight size={18} />
+          {loading ? 'Signing in...' : 'Sign In'}
+          {!loading && <ArrowRight size={18} />}
         </button>
       </form>
 
       <div className="divider"><span>Or continue with</span></div>
 
-      <button
-        className="btn-google"
-        type="button"
-        onClick={handleGoogleLogin}
-        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '12px', background: 'white', cursor: 'pointer' }}
-      >
+      <button className="btn-google" type="button" onClick={handleGoogleLogin}>
         <img
-          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" // رابط بديل أكثر استقراراً من قوقل مباشرة
+          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
           alt="Google"
-          style={{ width: '20px', height: '20px', marginRight: '10px' }}
         />
-        <span style={{ fontWeight: '600', color: '#334155' }}>Sign in with Google</span>
+        <span>Sign in with Google</span>
       </button>
 
       <p className="auth-footer">

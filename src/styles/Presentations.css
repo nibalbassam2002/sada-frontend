@@ -611,3 +611,368 @@
     color: #f59e0b;
     text-decoration: underline;
 }
+/* ========================================
+   تنسيقات أزرار المودال المحسنة
+   ======================================== */
+
+/* حاوية الأزرار */
+.modal-footer-btns {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+/* زر Back - تصميم أنيق */
+.btn-back-modal {
+  flex: 1;
+  background: #f1f5f9;
+  border: 1.5px solid #e2e8f0;
+  padding: 12px 20px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 14px;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-back-modal:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+  color: #1e293b;
+  transform: translateY(-2px);
+}
+
+.btn-back-modal:active {
+  transform: translateY(0);
+}
+
+/* زر Create - تصميم متطور */
+.btn-confirm-create {
+  flex: 1;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 14px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+/* تأثير الموجة عند الضغط */
+.btn-confirm-create::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  transform: translate(-50%, -50%);
+  transition: width 0.5s, height 0.5s;
+}
+
+.btn-confirm-create:hover::before {
+  width: 200px;
+  height: 200px;
+}
+
+.btn-confirm-create:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+}
+
+.btn-confirm-create:active {
+  transform: translateY(0);
+}
+
+.btn-confirm-create:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* تحسين حقل الإدخال */
+.modal-title-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #e2e8f0;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1e293b;
+  background: white;
+  outline: none;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.modal-title-input:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.modal-title-input::placeholder {
+  color: #cbd5e1;
+  font-weight: 400;
+  text-align: center;
+}
+
+/* تنسيق رسالة الخطأ */
+.modal-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fef2f2;
+  color: #dc2626;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 10px;
+  border: 1px solid #fecaca;
+}
+
+/* تحسين عنوان المودال */
+.modal-header-v2 h2 {
+  font-size: 22px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+
+/* تحسين البطاقات في الخطوة الأولى */
+.modal-opt-card {
+  border: 2px solid #f1f5f9;
+  padding: 28px 20px;
+  border-radius: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: white;
+}
+
+.modal-opt-card:hover {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%);
+  transform: translateY(-6px);
+  box-shadow: 0 15px 30px rgba(245, 158, 11, 0.1);
+}
+
+.opt-icon-wrap {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px;
+  transition: all 0.3s ease;
+}
+
+.modal-opt-card:hover .opt-icon-wrap {
+  transform: scale(1.05);
+}
+
+.opt-icon-wrap.amber { 
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  color: #f59e0b; 
+}
+
+.opt-icon-wrap.indigo { 
+  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+  color: #6366f1; 
+}
+
+.modal-opt-card h3 {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  color: #1e293b;
+}
+
+.modal-opt-card p {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* تحسين تأثيرات الحركة */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(30px) scale(0.95); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+/* ========================================
+   جعل الـ Empty State في منتصف الصفحة
+   ======================================== */
+
+/* الحاوية الرئيسية تأخذ ارتفاع كامل */
+.sada-simple-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  min-height: calc(100vh - 100px); /* ارتفاع كامل */
+  display: flex;
+  flex-direction: column;
+}
+
+/* جعل الـ Empty State يتمدد ليأخذ المساحة المتبقية */
+.empty-state-v2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex: 1; /* هذا يجعله يأخذ كل المساحة المتبقية */
+  min-height: 500px;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border-radius: 48px;
+  border: 2px dashed #e2e8f0;
+  margin: 20px 0;
+  padding: 60px 40px;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* تأثير دخول جميل */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* تحسين الأيقونة */
+.empty-state-v2 svg {
+  color: #cbd5e1;
+  margin-bottom: 24px;
+  width: 80px;
+  height: 80px;
+  opacity: 0.6;
+  animation: float 3s ease-in-out infinite;
+}
+
+/* حركة عائمة للأيقونة */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* تحسين النص */
+.empty-state-v2 h3 {
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+}
+
+.empty-state-v2 p {
+  color: #64748b;
+  font-size: 16px;
+  margin-bottom: 32px;
+  max-width: 300px;
+}
+
+/* تحسين الزر */
+.empty-state-v2 .btn-add-simple {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  padding: 14px 32px;
+  border-radius: 60px;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+  transition: all 0.3s ease;
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.empty-state-v2 .btn-add-simple:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(245, 158, 11, 0.4);
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+}
+
+.empty-state-v2 .btn-add-simple:active {
+  transform: translateY(0);
+}
+
+/* تحسين حالة عدم وجود نتائج بحث */
+.no-results-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex: 1;
+  min-height: 400px;
+  padding: 60px 40px;
+}
+
+.no-results-state svg {
+  color: #cbd5e1;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 20px;
+}
+
+.no-results-state h4 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.no-results-state p {
+  color: #64748b;
+  font-size: 14px;
+}

@@ -268,53 +268,72 @@ const Presentations = () => {
         </div>
       )}
 
-      {/* المودال */}
-      {showModal && (
-        <div className="modal-backdrop-v2" onClick={() => setShowModal(false)}>
-          <div className="creation-modal-v2" onClick={(e) => e.stopPropagation()}>
-            <header className="modal-header-v2">
-              <h2>{step === 1 ? 'Start New Project' : 'Name your project'}</h2>
-              <button className="modal-close-v2" onClick={() => setShowModal(false)}><X size={20} /></button>
-            </header>
+{/* المودال */}
+{showModal && (
+  <div className="modal-backdrop-v2" onClick={() => setShowModal(false)}>
+    <div className="creation-modal-v2" onClick={(e) => e.stopPropagation()}>
+      <header className="modal-header-v2">
+        <h2>{step === 1 ? 'Start New Project' : 'Name your project'}</h2>
+        <button className="modal-close-v2" onClick={() => setShowModal(false)}><X size={20} /></button>
+      </header>
 
-            {step === 1 ? (
-              <div className="modal-options-v2 fade-in">
-                <div className="modal-opt-card" onClick={() => { setSelectedTemplate(null); setStep(2); }}>
-                  <div className="opt-icon-wrap amber"><Plus size={30} /></div>
-                  <h3>Blank Canvas</h3>
-                  <p>Design from scratch</p>
-                </div>
-                <div className="modal-opt-card" onClick={() => navigate('/dashboard/templates')}>
-                  <div className="opt-icon-wrap indigo"><LayoutGrid size={30} /></div>
-                  <h3>Use Template</h3>
-                  <p>Pick from SADA gallery</p>
-                </div>
-              </div>
-            ) : (
-              <div className="title-input-step fade-in">
-                <input
-                  type="text"
-                  autoFocus
-                  placeholder="Project Title"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && executeCreate()}
-                  className="modal-title-input"
-                />
-                {errorMsg && (
-                  <div className="modal-error"><AlertCircle size={14} /> {errorMsg}</div>
-                )}
-                <div className="modal-footer-btns">
-                  <button className="btn-cancel-modal" onClick={() => setStep(1)}>Back</button>
-                  <button className="btn-confirm-create" onClick={executeCreate} disabled={creating}>
-                    {creating ? <Loader2 className="spinner-icon" size={18} /> : 'Create'}
-                  </button>
-                </div>
-              </div>
-            )}
+      {step === 1 ? (
+        <div className="modal-options-v2 fade-in">
+          <div className="modal-opt-card" onClick={() => { setSelectedTemplate(null); setStep(2); }}>
+            <div className="opt-icon-wrap amber"><Plus size={30} /></div>
+            <h3>Blank Canvas</h3>
+            <p>Design from scratch</p>
+          </div>
+          <div className="modal-opt-card" onClick={() => navigate('/dashboard/templates')}>
+            <div className="opt-icon-wrap indigo"><LayoutGrid size={30} /></div>
+            <h3>Use Template</h3>
+            <p>Pick from SADA gallery</p>
+          </div>
+        </div>
+      ) : (
+        <div className="title-input-step fade-in">
+          <input
+            type="text"
+            autoFocus
+            placeholder="Project Title"
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && executeCreate()}
+            className="modal-title-input"
+          />
+          {errorMsg && (
+            <div className="modal-error"><AlertCircle size={14} /> {errorMsg}</div>
+          )}
+          <div className="modal-footer-btns">
+            <button className="btn-back-modal" onClick={() => setStep(1)}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5" />
+                <path d="M12 19l-7-7 7-7" />
+              </svg>
+              Back
+            </button>
+            <button className="btn-confirm-create" onClick={executeCreate} disabled={creating}>
+              {creating ? (
+                <>
+                  <Loader2 className="spinner-icon" size={16} />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  Create
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34" />
+                    <polygon points="18 2 22 6 12 16 8 16 8 12 18 2" />
+                  </svg>
+                </>
+              )}
+            </button>
           </div>
         </div>
       )}
+    </div>
+  </div>
+)}
     </div>
   );
 };

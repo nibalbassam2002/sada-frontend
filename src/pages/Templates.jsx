@@ -18,7 +18,7 @@ const Templates = () => {
 
   const handleOpenNaming = (template) => {
     setSelectedTemp(template);
-    setNewTitle(`${template.title} Project`);
+    setNewTitle('');
     setShowNamingModal(true);
   };
 
@@ -73,33 +73,62 @@ const Templates = () => {
         ))}
       </div>
 
-      {/* مودال تسمية القالب (كما طلبنا) */}
-      {showNamingModal && (
-        <div className="modal-backdrop-v2" onClick={() => setShowNamingModal(false)}>
-          <div className="creation-modal-v2" onClick={(e) => e.stopPropagation()}>
-            <header className="modal-header-v2">
-              <h2>Name your project</h2>
-              <button className="modal-close-v2" onClick={() => setShowNamingModal(false)}><X size={20}/></button>
-            </header>
-            <div className="title-input-step">
-                <p className="input-hint">Design: <strong>{selectedTemp?.title}</strong></p>
-                <input 
-                  type="text" 
-                  autoFocus 
-                  className="modal-title-input" 
-                  value={newTitle} 
-                  onChange={(e) => setNewTitle(e.target.value)} 
-                />
-                {errorMsg && <div className="modal-error"><AlertCircle size={14}/> {errorMsg}</div>}
-                <div className="modal-footer-btns">
-                    <button className="btn-confirm-create" onClick={handleConfirmUse} disabled={creating}>
-                        {creating ? <Loader2 className="spinner-icon" size={18} /> : 'Create Presentation'}
-                    </button>
-                </div>
-            </div>
-          </div>
+    {showNamingModal && (
+  <div className="modal-backdrop-v2" onClick={() => setShowNamingModal(false)}>
+    <div className="creation-modal-v2" onClick={(e) => e.stopPropagation()}>
+      <header className="modal-header-v2">
+        <h2>Create New Project</h2>
+        <button className="modal-close-v2" onClick={() => setShowNamingModal(false)}>
+          <X size={20}/>
+        </button>
+      </header>
+      <div className="title-input-step">
+        <p className="input-hint">
+          Selected Design: <strong>{selectedTemp?.title}</strong>
+        </p>
+        <div className="input-wrapper">
+          <input 
+            type="text" 
+            autoFocus 
+            className="modal-title-input" 
+            value={newTitle} 
+            onChange={(e) => setNewTitle(e.target.value)} 
+            placeholder="Enter your project name..."  // مجرد نص إرشادي يختفي عند الكتابة
+          />
         </div>
-      )}
+        {errorMsg && (
+          <div className="modal-error">
+            <AlertCircle size={14}/> {errorMsg}
+          </div>
+        )}
+        <div className="modal-footer-btns">
+          <button 
+            className="btn-confirm-create" 
+            onClick={handleConfirmUse} 
+            disabled={creating}
+          >
+            {creating ? (
+              <>
+                <Loader2 className="spinner-icon" size={18} />
+                Creating...
+              </>
+            ) : (
+              <>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                  <path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z" />
+                  <path d="M12 11v6" />
+                  <path d="M9 14h6" />
+                </svg>
+                Create Presentation
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };
