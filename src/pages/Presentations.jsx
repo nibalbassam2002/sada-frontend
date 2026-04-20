@@ -4,14 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import {
   Plus, Search, MoreVertical, LayoutGrid, Users, Play,
   BarChart3, Share2, Clock,
-  Copy, Archive, Trash2, FileEdit, Loader2, X, AlertCircle, Monitor, FileText
+  Copy, Archive, Trash2, FileEdit, Loader2, X, AlertCircle, Monitor, FileText, Upload
 } from 'lucide-react';
 import ThemeManager from '../templates/ThemeManager';
 import '../styles/Presentations.css';
 
-// ── مصغّر الشريحة الأولى ─────────────────────────────
 const SlideMiniPreview = ({ themeId, firstSlide }) => {
-  const title    = firstSlide?.title    || '';
+  const title = firstSlide?.title || '';
   const subtitle = firstSlide?.subtitle || '';
 
   return (
@@ -76,6 +75,7 @@ const Presentations = () => {
   const [newTitle, setNewTitle] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchPresentations();
@@ -90,7 +90,11 @@ const Presentations = () => {
       const response = await api.get('/presentations');
       setPresentations(response.data.data);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      const data = error.response?.data;
+      setErrorMsg(
+        data?.message + ' | ' + (data?.file || '') + ':' + (data?.line || '') +
+        ' | errors: ' + JSON.stringify(data?.errors || {})
+      );
     } finally {
       setLoading(false);
     }
@@ -132,7 +136,26 @@ const Presentations = () => {
       setCreating(false);
     }
   };
-
+  const handlePptxUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    setErrorMsg('');
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('title', file.name.replace('.pptx', ''));
+    try {
+      const response = await api.post('/presentations/import-pptx', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      navigate(`/editor/${response.data.data.id}?templateId=0`);
+      setShowModal(false);
+    } catch {
+      setErrorMsg('Failed to import. Check file format.');
+    } finally {
+      setUploading(false);
+    }
+  };
   // فلترة + بحث
   const filteredPresentations = presentations.filter(p => {
     const matchFilter = activeFilter === 'All' ? true : p.status === activeFilter.toLowerCase();
@@ -158,7 +181,6 @@ const Presentations = () => {
         </button>
       </header>
 
-      {/* شريط الفلترة والبحث */}
       <div className="sada-simple-toolbar">
         <div className="filter-n-sort">
           <div className="pills-v4">
@@ -189,13 +211,11 @@ const Presentations = () => {
           {filteredPresentations.map((p) => (
             <div key={p.id} className="p-mini-card">
 
-              {/* منطقة المعاينة — تفتح المحرر عند النقر */}
               <div
                 className="mini-preview-area"
                 style={{ cursor: 'pointer', height: '146px' }}  /* 960×0.2708=260 / 540×0.2708=146 — نسبة 16:9 */
                 onClick={() => navigate(`/editor/${p.id}?templateId=${p.template_id || 0}`)}
               >
-                {/* ✅ الثيم + العنوان معاً */}
                 <SlideMiniPreview
                   themeId={p.template_id}
                   firstSlide={p.first_slide}
@@ -268,72 +288,114 @@ const Presentations = () => {
         </div>
       )}
 
-{/* المودال */}
-{showModal && (
-  <div className="modal-backdrop-v2" onClick={() => setShowModal(false)}>
-    <div className="creation-modal-v2" onClick={(e) => e.stopPropagation()}>
-      <header className="modal-header-v2">
-        <h2>{step === 1 ? 'Start New Project' : 'Name your project'}</h2>
-        <button className="modal-close-v2" onClick={() => setShowModal(false)}><X size={20} /></button>
-      </header>
+      {showModal && (
+        <div className="modal-backdrop-v2" onClick={() => setShowModal(false)}>
+          <div className="creation-modal-v2" onClick={(e) => e.stopPropagation()}>
+            <header className="modal-header-v2">
+              <h2>
+                {step === 1 ? 'Start New Project'
+                  : step === 'import' ? 'Import PowerPoint'
+                    : 'Name your project'}
+              </h2>
+              <button className="modal-close-v2" onClick={() => setShowModal(false)}><X size={20} /></button>
+            </header>
 
-      {step === 1 ? (
-        <div className="modal-options-v2 fade-in">
-          <div className="modal-opt-card" onClick={() => { setSelectedTemplate(null); setStep(2); }}>
-            <div className="opt-icon-wrap amber"><Plus size={30} /></div>
-            <h3>Blank Canvas</h3>
-            <p>Design from scratch</p>
-          </div>
-          <div className="modal-opt-card" onClick={() => navigate('/dashboard/templates')}>
-            <div className="opt-icon-wrap indigo"><LayoutGrid size={30} /></div>
-            <h3>Use Template</h3>
-            <p>Pick from SADA gallery</p>
-          </div>
-        </div>
-      ) : (
-        <div className="title-input-step fade-in">
-          <input
-            type="text"
-            autoFocus
-            placeholder="Project Title"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && executeCreate()}
-            className="modal-title-input"
-          />
-          {errorMsg && (
-            <div className="modal-error"><AlertCircle size={14} /> {errorMsg}</div>
-          )}
-          <div className="modal-footer-btns">
-            <button className="btn-back-modal" onClick={() => setStep(1)}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 12H5" />
-                <path d="M12 19l-7-7 7-7" />
-              </svg>
-              Back
-            </button>
-            <button className="btn-confirm-create" onClick={executeCreate} disabled={creating}>
-              {creating ? (
-                <>
-                  <Loader2 className="spinner-icon" size={16} />
-                  Creating...
-                </>
-              ) : (
-                <>
-                  Create
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34" />
-                    <polygon points="18 2 22 6 12 16 8 16 8 12 18 2" />
-                  </svg>
-                </>
-              )}
-            </button>
+
+            {step === 1 ? (
+              <div className="modal-options-v2 fade-in">
+                <div className="modal-opt-card" onClick={() => { setSelectedTemplate(null); setStep(2); }}>
+                  <div className="opt-icon-wrap amber"><Plus size={30} /></div>
+                  <h3>Blank Canvas</h3>
+                  <p>Design from scratch</p>
+                </div>
+                <div className="modal-opt-card" onClick={() => navigate('/dashboard/templates')}>
+                  <div className="opt-icon-wrap indigo"><LayoutGrid size={30} /></div>
+                  <h3>Use Template</h3>
+                  <p>Pick from SADA gallery</p>
+                </div>
+                <div className="modal-opt-card" onClick={() => setStep('import')}>
+                  <div className="opt-icon-wrap" style={{ background: '#f0fdf4', color: '#16a34a' }}>
+                    <Upload size={30} />
+                  </div>
+                  <h3>Import PowerPoint</h3>
+                  <p>Upload .pptx file</p>
+                </div>
+              </div>
+
+            ) : step === 'import' ? (
+              <div className="title-input-step fade-in">
+                <input
+                  type="file"
+                  accept=".pptx"
+                  onChange={handlePptxUpload}
+                  id="pptx-upload"
+                  style={{ display: 'none' }}
+                />
+                <label htmlFor="pptx-upload" style={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  gap: 12, padding: 32, border: '2px dashed #e2e8f0',
+                  borderRadius: 12, cursor: 'pointer'
+                }}>
+                  <Upload size={40} color="#16a34a" />
+                  <span style={{ color: '#64748b', fontSize: 14 }}>Click to choose .pptx file</span>
+                </label>
+                {uploading && (
+                  <div style={{ textAlign: 'center', color: '#64748b', marginTop: 12 }}>
+                    <Loader2 className="spinner-icon" size={18} /> Converting...
+                  </div>
+                )}
+                {errorMsg && (
+                  <div className="modal-error"><AlertCircle size={14} /> {errorMsg}</div>
+                )}
+                <div className="modal-footer-btns">
+                  <button className="btn-back-modal" onClick={() => setStep(1)}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M19 12H5" /><path d="M12 19l-7-7 7-7" />
+                    </svg>
+                    Back
+                  </button>
+                </div>
+              </div>
+
+            ) : (
+              <div className="title-input-step fade-in">
+                <input
+                  type="text"
+                  autoFocus
+                  placeholder="Project Title"
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && executeCreate()}
+                  className="modal-title-input"
+                />
+                {errorMsg && (
+                  <div className="modal-error"><AlertCircle size={14} /> {errorMsg}</div>
+                )}
+                <div className="modal-footer-btns">
+                  <button className="btn-back-modal" onClick={() => setStep(1)}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M19 12H5" /><path d="M12 19l-7-7 7-7" />
+                    </svg>
+                    Back
+                  </button>
+                  <button className="btn-confirm-create" onClick={executeCreate} disabled={creating}>
+                    {creating ? (
+                      <><Loader2 className="spinner-icon" size={16} /> Creating...</>
+                    ) : (
+                      <>Create
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34" />
+                          <polygon points="18 2 22 6 12 16 8 16 8 12 18 2" />
+                        </svg>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
-    </div>
-  </div>
-)}
     </div>
   );
 };

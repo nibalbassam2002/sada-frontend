@@ -46,45 +46,38 @@ const ThumbnailElement = ({ el }) => {
   return null;
 };
 
-// ─── Styles object ────────────────────────────────────────────────────────────
-const QS = {
-  wrapper: (isThumbnail) => ({
-    position: 'absolute', inset: 0, zIndex: 5,
-    display: 'flex', flexDirection: 'column',
-    padding: isThumbnail ? '8px 10px' : '24px 32px',
-    gap: isThumbnail ? '6px' : '16px',
-    boxSizing: 'border-box',
-  }),
-};
-
-// ─── Component ────────────────────────────────────────────────────────────────
-const SlideRenderer = ({ slide, onAnswerSelected, isThumbnail = false }) => {
+const SlideRenderer = ({ slide, onAnswerSelected, isThumbnail = false, isReadOnly = false, themeId: themeIdProp }) => {
   const {
-    setSlides, slides, activeSlideId,
+    setSlides, slides,
     selectedField, setSelectedField,
     selectedFont, currentTheme,
-    animations, clipboard, setIsDirty,
+    clipboard, setIsDirty,
   } = useEditor();
 
   const [selectedOption, setSelectedOption] = useState(null);
   const [showResult, setShowResult]         = useState(false);
   const [pointsEarned, setPointsEarned]     = useState(0);
 
+  // ✅ أي وضع لا يسمح بالتعديل
+  const noEdit = isThumbnail || isReadOnly;
+
   useEffect(() => {
-    if (!isThumbnail) {
+    if (noEdit) {
       setSelectedOption(null);
       setShowResult(false);
       setPointsEarned(0);
     }
-  }, [slide?.id, isThumbnail]);
+  }, [slide?.id, noEdit]);
 
   if (!slide) return null;
 
-  const liveSlide = isThumbnail
+  const liveSlide = noEdit
     ? slide
     : (slides.find(s => s.id === slide.id) || slide);
 
-  const themeId      = currentTheme ?? 0;
+  const themeId = (themeIdProp !== undefined && themeIdProp !== null && themeIdProp !== 0)
+    ? themeIdProp
+    : (currentTheme ?? 0);
   const questionData = liveSlide.questionData || {};
   const appearance   = questionData.appearance || {
     accentColor: '#f59e0b', showLetters: true,
@@ -96,78 +89,97 @@ const SlideRenderer = ({ slide, onAnswerSelected, isThumbnail = false }) => {
   const pointsPerQuestion = questionData.points     || 10;
 
   const handleFieldBlur = useCallback((field, newText) => {
-    if (isThumbnail) return;
+    if (noEdit) return;
     setSlides(prev => prev.map(s => s.id === liveSlide.id ? { ...s, [field]: newText } : s));
     if (setIsDirty) setIsDirty(true);
-  }, [isThumbnail, liveSlide.id, setSlides, setIsDirty]);
+  }, [noEdit, liveSlide.id, setSlides, setIsDirty]);
 
+  // ✅ renderBoxLocal: عندما noEdit نعرض div عادي بدون contentEditable
   const renderBoxLocal = useCallback((field, placeholder, className = '', extraStyle = {}) => {
     const content    = liveSlide[field]            || '';
     const fieldStyle = liveSlide[`${field}Style`] || {};
-    const isActive   = !isThumbnail && selectedField === field;
+    const isActive   = !noEdit && selectedField === field;
     const elementId  = `element-${liveSlide.id}-${field}`;
     const defaultSize = isThumbnail
       ? (field === 'title' ? '13px' : '9px')
       : (field === 'title' ? '36px' : '18px');
 
+    const sharedStyle = {
+      fontFamily:     fieldStyle.fontFamily    || selectedFont || 'Calibri, sans-serif',
+      fontSize:       fieldStyle.fontSize      ? `${fieldStyle.fontSize}px` : defaultSize,
+      color:          fieldStyle.color         || '#1e293b',
+      fontWeight:     fieldStyle.fontWeight    || (field === 'title' ? '700' : '400'),
+      fontStyle:      fieldStyle.fontStyle     || 'normal',
+      textDecoration: fieldStyle.textDecoration|| 'none',
+      textAlign:      fieldStyle.textAlign     || (field === 'title' ? 'center' : 'left'),
+      lineHeight:     fieldStyle.lineHeight    || '1.4',
+      width:          '100%',
+      minHeight:      noEdit ? 'auto' : '40px',
+      padding:        isThumbnail ? '1px 4px' : '6px 10px',
+      border:         noEdit ? 'none' : (isActive ? `1px dashed ${accentColor}88` : '1px dashed transparent'),
+      borderRadius:   '4px',
+      outline:        'none',
+      wordBreak:      'break-word',
+      boxSizing:      'border-box',
+      pointerEvents:  'none',        // ✅ دائماً none لمنع الكتابة
+      userSelect:     'none',        // ✅ دائماً none
+      cursor:         'default',
+      ...extraStyle,
+    };
+
+    // ✅ في وضع التعديل فقط نعيد pointerEvents وcursor
+    if (!noEdit) {
+      sharedStyle.pointerEvents = 'auto';
+      sharedStyle.userSelect    = 'text';
+      sharedStyle.cursor        = 'text';
+    }
+
+    // ✅ وضع العرض (session/display) → div عادي لا يقبل أي إدخال
+    if (noEdit) {
+      return (
+        <div
+          id={elementId}
+          key={`${liveSlide.id}-${field}`}
+          className={`editable-box ${className} ${isThumbnail ? 'thumbnail-box' : ''}`}
+          style={sharedStyle}
+        >
+          {content}
+        </div>
+      );
+    }
+
+    // ✅ وضع التعديل الحقيقي فقط
     return (
       <div
         id={elementId}
         key={`${liveSlide.id}-${field}`}
-        className={`editable-box ${className} ${isActive ? 'active-editing' : ''} ${isThumbnail ? 'thumbnail-box' : ''}`}
-        contentEditable={!isThumbnail}
+        className={`editable-box ${className} ${isActive ? 'active-editing' : ''}`}
+        contentEditable
         suppressContentEditableWarning
         spellCheck="false"
-        data-placeholder={isThumbnail ? '' : placeholder}
+        data-placeholder={placeholder}
         data-has-content={content.trim() !== ''}
-        style={{
-          fontFamily:     fieldStyle.fontFamily    || selectedFont || 'Calibri, sans-serif',
-          fontSize:       fieldStyle.fontSize      ? `${fieldStyle.fontSize}px` : defaultSize,
-          color:          fieldStyle.color         || '#1e293b',
-          fontWeight:     fieldStyle.fontWeight    || (field === 'title' ? '700' : '400'),
-          fontStyle:      fieldStyle.fontStyle     || 'normal',
-          textDecoration: fieldStyle.textDecoration|| 'none',
-          textAlign:      fieldStyle.textAlign     || (field === 'title' ? 'center' : 'left'),
-          lineHeight:     fieldStyle.lineHeight    || '1.4',
-          pointerEvents:  isThumbnail ? 'none' : 'auto',
-          width:          '100%',
-          minHeight:      isThumbnail ? 'auto' : '40px',
-          padding:        isThumbnail ? '1px 4px' : '6px 10px',
-          border:         isThumbnail ? 'none' : (isActive ? `1px dashed ${accentColor}88` : '1px dashed transparent'),
-          borderRadius:   '4px',
-          outline:        'none',
-          cursor:         isThumbnail ? 'default' : 'text',
-          wordBreak:      'break-word',
-          userSelect:     isThumbnail ? 'none' : 'text',
-          boxSizing:      'border-box',
-          ...extraStyle,
-        }}
-        onFocus={() => { if (!isThumbnail) setSelectedField(field); }}
+        style={sharedStyle}
+        onFocus={() => setSelectedField(field)}
         onBlur={(e) => {
-          if (!isThumbnail) {
-            const t = e.target.innerText;
-            if (t !== content) handleFieldBlur(field, t);
-          }
+          const t = e.target.innerText;
+          if (t !== content) handleFieldBlur(field, t);
         }}
         onKeyDown={(e) => {
-          if (!isThumbnail && e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault(); e.target.blur();
-          }
+          if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); e.target.blur(); }
         }}
         onClick={(e) => {
-          if (!isThumbnail) {
-            if (clipboard?.isPainterActive) clipboard.applyFormat(e);
-            e.stopPropagation();
-          }
+          if (clipboard?.isPainterActive) clipboard.applyFormat(e);
+          e.stopPropagation();
         }}
       >
         {content}
       </div>
     );
-  }, [liveSlide, isThumbnail, selectedField, selectedFont, accentColor, clipboard, handleFieldBlur, setSelectedField]);
+  }, [liveSlide, noEdit, isThumbnail, selectedField, selectedFont, accentColor, clipboard, handleFieldBlur, setSelectedField]);
 
   const handleOptionClick = (idx) => {
-    if (isThumbnail || showResult) return;
+    if (noEdit || showResult) return;
     setSelectedOption(idx);
     const isCorrect = idx === correctAnswer;
     if (isCorrect) setPointsEarned(pointsPerQuestion);
@@ -274,13 +286,18 @@ const SlideRenderer = ({ slide, onAnswerSelected, isThumbnail = false }) => {
               if (isTF) { bg = i===0?'#f0fdf4':'#fef2f2'; borderColor = i===0?'#10b981':'#ef4444'; }
               else if (isSel && showResult) { bg = isOk?'#f0fdf4':'#fef2f2'; borderColor = isOk?'#10b981':'#ef4444'; }
               return (
-                <div key={`${liveSlide.id}-opt-${i}`} onClick={() => handleOptionClick(i)} style={{
-                  display: 'flex', alignItems: 'center', gap: isThumbnail?'5px':'12px',
-                  padding: isThumbnail?'5px 8px':'13px 16px',
-                  background: bg, border: `2px solid ${borderColor}`, borderRadius: cardRadius,
-                  cursor: isThumbnail?'default':'pointer', transition: 'all 0.18s',
-                  boxShadow: isThumbnail?'none':'0 1px 4px rgba(0,0,0,0.07)', overflow: 'hidden',
-                }}>
+                <div key={`${liveSlide.id}-opt-${i}`}
+                  onClick={() => !noEdit && handleOptionClick(i)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: isThumbnail?'5px':'12px',
+                    padding: isThumbnail?'5px 8px':'13px 16px',
+                    background: bg, border: `2px solid ${borderColor}`, borderRadius: cardRadius,
+                    cursor: noEdit ? 'default' : 'pointer',
+                    transition: 'all 0.18s',
+                    boxShadow: isThumbnail?'none':'0 1px 4px rgba(0,0,0,0.07)',
+                    overflow: 'hidden',
+                    pointerEvents: noEdit ? 'none' : 'auto',  // ✅
+                  }}>
                   {appearance.showLetters !== false && (
                     <div style={{
                       width: isThumbnail?'16px':'28px', height: isThumbnail?'16px':'28px',
@@ -299,10 +316,11 @@ const SlideRenderer = ({ slide, onAnswerSelected, isThumbnail = false }) => {
                     color:isTF?(i===0?'#059669':'#dc2626'):'#1e293b',
                     overflow:'hidden', whiteSpace:isThumbnail?'nowrap':'normal',
                     textOverflow:'ellipsis', lineHeight:1.3,
+                    pointerEvents: 'none', userSelect: 'none',  // ✅
                   }}>
                     {isThumbnail && opt.length>18 ? opt.substring(0,16)+'…' : opt}
                   </div>
-                  {!isThumbnail && isSel && showResult && (
+                  {!noEdit && isSel && showResult && (
                     <div style={{ marginLeft:'auto', fontSize:'13px', fontWeight:'700', color:isOk?'#059669':'#dc2626' }}>
                       {isOk ? `+${pointsEarned}pts` : '✗'}
                     </div>
@@ -322,7 +340,7 @@ const SlideRenderer = ({ slide, onAnswerSelected, isThumbnail = false }) => {
         {qType==='open-ended' && (
           <div style={{ display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:isThumbnail?'4px':'12px', opacity:0.4 }}>
             <MessageSquare size={isThumbnail?22:60} color={accentColor}/>
-            {!isThumbnail && (
+            {!noEdit && (
               <div style={{ width:'70%', height:'48px', background:'#f1f5f9', borderRadius:'8px', border:`2px dashed ${accentColor}44` }}/>
             )}
           </div>
@@ -373,14 +391,14 @@ const SlideRenderer = ({ slide, onAnswerSelected, isThumbnail = false }) => {
             {renderBoxLocal('title','Click to add title','comparison-title',{ fontSize:liveSlide.titleStyle?.fontSize?`${liveSlide.titleStyle.fontSize}px`:(isThumbnail?'13px':'28px'), fontWeight:'700', textAlign:'center' })}
             <div style={{ display:'flex', flex:1, gap:isThumbnail?'6px':'24px' }}>
               <div style={{ flex:1, display:'flex', flexDirection:'column' }}>
-                <div style={{ fontSize:isThumbnail?'8px':'16px', fontWeight:'600', color:'#4f46e5', marginBottom:isThumbnail?'3px':'10px', borderBottom:'2px solid #4f46e5', paddingBottom:isThumbnail?'2px':'6px' }}>
+                <div style={{ fontSize:isThumbnail?'8px':'16px', fontWeight:'600', color:'#4f46e5', marginBottom:isThumbnail?'3px':'10px', borderBottom:'2px solid #4f46e5', paddingBottom:isThumbnail?'2px':'6px', pointerEvents:'none', userSelect:'none' }}>
                   {isThumbnail?'أ':'المقارنة الأولى'}
                 </div>
                 {renderBoxLocal('leftContent','نص المقارنة','comparison-content',{ flex:1, fontSize:isThumbnail?'8px':'15px', textAlign:'right' })}
               </div>
               <div style={{ width:'1px', background:'#e2e8f0', flexShrink:0 }}/>
               <div style={{ flex:1, display:'flex', flexDirection:'column' }}>
-                <div style={{ fontSize:isThumbnail?'8px':'16px', fontWeight:'600', color:accentColor, marginBottom:isThumbnail?'3px':'10px', borderBottom:`2px solid ${accentColor}`, paddingBottom:isThumbnail?'2px':'6px' }}>
+                <div style={{ fontSize:isThumbnail?'8px':'16px', fontWeight:'600', color:accentColor, marginBottom:isThumbnail?'3px':'10px', borderBottom:`2px solid ${accentColor}`, paddingBottom:isThumbnail?'2px':'6px', pointerEvents:'none', userSelect:'none' }}>
                   {isThumbnail?'ب':'المقارنة الثانية'}
                 </div>
                 {renderBoxLocal('rightContent','نص المقارنة','comparison-content',{ flex:1, fontSize:isThumbnail?'8px':'15px', textAlign:'right' })}
@@ -398,10 +416,14 @@ const SlideRenderer = ({ slide, onAnswerSelected, isThumbnail = false }) => {
   // ── slide surface ──────────────────────────────────────────────────────────
   return (
     <div
-      className={`powerpoint-slide-surface${isThumbnail?' is-thumbnail':''}`}
+      className={`powerpoint-slide-surface${isThumbnail?' is-thumbnail':''}${noEdit?' is-readonly':''}`}
       style={{
         width: '960px', height: '540px',
         position: 'relative', overflow: 'hidden',
+        // ✅ منع أي تفاعل على مستوى الـ surface كله في وضع العرض
+        pointerEvents: noEdit ? 'none' : undefined,
+        userSelect:    noEdit ? 'none' : undefined,
+        cursor:        noEdit ? 'default' : undefined,
         ...(liveSlide.background ? getCustomBackground() : {}),
       }}
     >
@@ -420,7 +442,6 @@ const SlideRenderer = ({ slide, onAnswerSelected, isThumbnail = false }) => {
         </div>
       )}
 
-      {/* العناصر في الـ thumbnail فقط — الـ canvas الحقيقي يستخدم ElementsLayer */}
       {isThumbnail && liveSlide.elements?.length > 0 && (
         <div style={{ position:'absolute', inset:0, zIndex:30, pointerEvents:'none' }}>
           {liveSlide.elements.map(el => (

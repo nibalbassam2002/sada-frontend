@@ -38,7 +38,8 @@ export const EditorProvider = ({ children }) => {
   const [lastSaved, setLastSaved] = useState(null);
   
   // جلب رقم الـ ID من الرابط
-  const presentationId = window.location.pathname.split('/').pop();
+  const isDisplayPage = window.location.pathname.includes('/display/');
+const presentationId = isDisplayPage ? null : window.location.pathname.split('/').pop();
 
   // ========== BASIC STATES ==========
   const query = new URLSearchParams(window.location.search);
