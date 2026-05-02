@@ -438,8 +438,73 @@ const DisplayContent = () => {
     return () => window.removeEventListener('message', handler);
   }, [fetchSlide]);
 
-  if (status === 'no-session') return <Screen><Msg icon="⚠️" title="No active session" /></Screen>;
-  if (status === 'ended') return <Screen><Msg icon="✅" title="Session Ended" sub="Thank you!" /></Screen>;
+  if (status === 'no-session') return <Screen><Msg icon="" title="No active session" /></Screen>;
+  if (status === 'ended') return (
+  <div style={{
+    width: '100vw', height: '100vh',
+    background: 'linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%)',
+    display: 'flex', flexDirection: 'column',
+    alignItems: 'center', justifyContent: 'center',
+    fontFamily: "'Plus Jakarta Sans','Segoe UI',sans-serif",
+    gap: 32,
+  }}>
+    <div style={{
+      width: 120, height: 120, borderRadius: '50%',
+      background: 'linear-gradient(135deg,#f97316,#ea580c)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      boxShadow: '0 0 60px rgba(249,115,22,0.4)',
+      animation: 'pulse 2s infinite',
+    }}>
+      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+        <path d="M4 22h16"></path>
+        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+        <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+      </svg>
+    </div>
+
+    <div style={{ textAlign: 'center' }}>
+      <h1 style={{
+        fontSize: 64, fontWeight: 900, color: '#fff',
+        margin: '0 0 16px', lineHeight: 1.1,
+      }}>Session Ended</h1>
+      <p style={{ fontSize: 24, color: '#94a3b8', margin: 0 }}>
+        Thank you for participating!
+      </p>
+    </div>
+
+    <div style={{
+      display: 'flex', gap: 48, marginTop: 16,
+    }}>
+      {[
+        { 
+          label: 'Questions Answered', 
+          icon: <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> 
+        },
+        { 
+          label: 'Points Earned', 
+          icon: <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> 
+        },
+        { 
+          label: 'Great Job!', 
+          icon: <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m5 11 4-7"></path><path d="M19.63 11c.6-.2 1.18.23 1.18.87V14c0 1.1-.9 2-2 2h-4.33l1.14 3.42c.4 1.2-.47 2.58-1.74 2.58h-2.3c-.41 0-.81-.17-1.1-.47L6 16.5"></path><path d="M2 21h4V11H2z"></path></svg> 
+        },
+      ].map((item, i) => (
+        <div key={i} style={{ textAlign: 'center' }}>
+          <div style={{ marginBottom: 8, display: 'flex', justifyContent: 'center' }}>{item.icon}</div>
+          <div style={{ fontSize: 14, color: '#64748b', fontWeight: 600 }}>{item.label}</div>
+        </div>
+      ))}
+    </div>
+
+    <p style={{ fontSize: 16, color: '#475569', marginTop: 16 }}>
+      Powered by <strong style={{ color: '#f97316' }}>SADA</strong> · sada.app
+    </p>
+    <style>{`@keyframes pulse{0%,100%{box-shadow:0 0 60px rgba(249,115,22,0.4)}50%{box-shadow:0 0 80px rgba(249,115,22,0.7)}}`}</style>
+  </div>
+);
   if (!currentSlide) return (
     <Screen>
       <div style={{ width: 44, height: 44, border: '3px solid #334155', borderTop: '3px solid #f97316', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />

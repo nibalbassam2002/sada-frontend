@@ -11,8 +11,7 @@ const DashboardLayout = () => {
 
   const menuRef = useRef(null);
 
-  // 1. جلب بيانات المستخدم من الذاكرة (localStorage)
-  // نقوم بتحويل النص إلى Object باستخدام JSON.parse
+ 
   const userData = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
 
   useEffect(() => {
@@ -65,7 +64,6 @@ const DashboardLayout = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             <Bell size={22} color="#64748b" style={{ cursor: 'pointer' }} className="hide-mobile" />
 
-            {/* منطقة البروفايل - أصبحت الآن ديناميكية */}
             <div className="profile-section" ref={menuRef} onClick={() => setIsMenuOpen(!isMenuOpen)}>
               <div className="user-info-header">
 
@@ -73,7 +71,6 @@ const DashboardLayout = () => {
                   <div style={{ fontSize: '14px', fontWeight: 800, color: '#1e293b' }}>
                     {user.name}
                   </div>
-                  {/* هنا التغيير: عرض الإيميل بدلاً من الدور الوظيفي */}
                   <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 500, marginTop: '2px' }}>
                     {user.email}
                   </div>
@@ -97,11 +94,8 @@ const DashboardLayout = () => {
                   <span style={{ fontSize: '11px', color: '#94a3b8' }}>{user.email}</span>
                 </div>
                 <div className="dropdown-divider"></div>
-                <div className="dropdown-item">
+                <div className="dropdown-item" onClick={() => { navigate('/dashboard/preferences'); setIsMenuOpen(false); }}>
                   <User size={17} /> <span>Profile Settings</span>
-                </div>
-                <div className="dropdown-item">
-                  <Settings size={17} /> <span>System Preferences</span>
                 </div>
                 <div className="dropdown-divider"></div>
                 <div className="dropdown-item logout-item" onClick={handleLogout}>

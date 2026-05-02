@@ -13,6 +13,7 @@ const PHASES = {
   WAITING: 'waiting',
   PRESENTING: 'presenting',
   QUESTION: 'question',
+  ENDED: 'ended',
 };
 
 // ── 6 خانات الكود ─────────────────────────────────────────
@@ -158,12 +159,11 @@ const JoinPage = () => {
   const pollingRef = useRef(null);
   const timerRef = useRef(null);
   const answeredRef = useRef(false);
-  const timerStarted = useRef(false);  // ✅ منع تشغيل التايمر أكثر من مرة
-  const totalDuration = useRef(30);     // ✅ المدة الكلية للسؤال الحالي
-  const sessionIdRef = useRef(null);   // ✅ ref للـ sessionId لتجنب stale closure
-  const currentSlideRef = useRef(null); // ✅ ref للـ slide الحالية
+  const timerStarted = useRef(false);
+  const totalDuration = useRef(30);
+  const sessionIdRef = useRef(null);
+  const currentSlideRef = useRef(null);
 
-  // ✅ sync refs مع state
   useEffect(() => { sessionIdRef.current = sessionId; }, [sessionId]);
   useEffect(() => { currentSlideRef.current = currentSlide; }, [currentSlide]);
 
@@ -172,15 +172,16 @@ const JoinPage = () => {
     try { return JSON.parse(localStorage.getItem('answered_slides') || '{}'); }
     catch { return {}; }
   };
+
   const markSlideAnswered = (slideId, answerIndex) => {
     const obj = getAnsweredSlides();
-    const key = `${sessionId}_${slideId}`;  // ✅ ربط بالسيشن
+    const key = `${sessionIdRef.current}_${slideId}`;
     obj[key] = { answerIndex, timestamp: Date.now() };
     localStorage.setItem('answered_slides', JSON.stringify(obj));
   };
 
   const hasAnsweredSlide = (slideId) => {
-    const key = `${sessionId}_${slideId}`;  // ✅ نفس المفتاح
+    const key = `${sessionIdRef.current}_${slideId}`;
     return !!getAnsweredSlides()[key];
   };
 
@@ -189,10 +190,12 @@ const JoinPage = () => {
   );
 
   useEffect(() => { localStorage.setItem('device_token', deviceToken); }, [deviceToken]);
+
   useEffect(() => {
     const t = localStorage.getItem('token');
     if (t) navigate('/dashboard');
   }, []);
+
   useEffect(() => {
     if (urlCode) {
       const clean = urlCode.replace(/\D/g, '').slice(0, 6);
@@ -203,9 +206,8 @@ const JoinPage = () => {
 
   const cleanCode = code.replace(/\s/g, '');
 
-  // ── handleAnswer (مستقل عن stale closures) ────────────
+  // ── handleAnswer ────────────────────────────────────────
   const handleAnswer = useCallback(async (optionIndex) => {
-    console.log('handleAnswer called with:', optionIndex, typeof optionIndex);
     if (answeredRef.current) return;
     clearInterval(timerRef.current);
     answeredRef.current = true;
@@ -214,13 +216,11 @@ const JoinPage = () => {
     const activeSid = sessionIdRef.current;
     const activeSlide = currentSlideRef.current;
 
-    // ✅ احفظ الإجابة محلياً فوراً
     if (activeSlide?.id) {
       markSlideAnswered(activeSlide.id, optionIndex);
     }
 
     try {
-      // بعد
       await api.post(`/sessions/${activeSid}/answer`, {
         slide_id: String(activeSlide?.id),
         answer_index: optionIndex !== null && optionIndex !== undefined
@@ -267,30 +267,31 @@ const JoinPage = () => {
       clearInterval(timerRef.current);
       timerRef.current = setInterval(() => {
         setTimeLeft(t => {
-          if (t <= 1) {
+          const next = t <= 1 ? 0 : t - 1;
+          timeLeftRef.current = next;
+          if (next === 0) {
             clearInterval(timerRef.current);
             if (!answeredRef.current) {
               setTimesUp(true);
               handleAnswer(null);
             }
-            return 0;
           }
-          return t - 1;
+          return next;
         });
       }, 1000);
 
     } catch {
-      // Fallback: ابدأ بالوقت الافتراضي
       if (!timerStarted.current) {
         const fallback = currentSlideRef.current?.questionData?.timer || 30;
         totalDuration.current = fallback;
         timerStarted.current = true;
         setTimeLeft(fallback);
+        timeLeftRef.current = fallback;
         clearInterval(timerRef.current);
         timerRef.current = setInterval(() => {
           setTimeLeft(t => {
             const next = t <= 1 ? 0 : t - 1;
-            timeLeftRef.current = next; // ✅ حدّث الـ ref
+            timeLeftRef.current = next;
             if (next === 0) {
               clearInterval(timerRef.current);
               if (!answeredRef.current) {
@@ -316,11 +317,11 @@ const JoinPage = () => {
 
         const slideData = res.data.data;
         const slide = slideData.slide || slideData;
-        const questionInfo = slideData.question_info || null;
+        // ✅ السطر الصحيح — بدون تكرار
         const slideId = slide?.id;
+        const questionInfo = slideData.question_info || null;
 
         if (slideId && slideId !== lastSlideId) {
-          // ── شريحة جديدة ──────────────────────────────
           clearInterval(timerRef.current);
           timerStarted.current = false;
           answeredRef.current = false;
@@ -347,7 +348,6 @@ const JoinPage = () => {
           }
 
         } else if (slideId && slideId === lastSlideId) {
-          // ── نفس الشريحة — تحقق إذا أُغلق السؤال ──────
           const isQ = slide?.layout === 'QUESTION' || !!slide?.questionData;
           if (isQ && questionInfo?.is_active === false && phase === PHASES.QUESTION) {
             clearInterval(timerRef.current);
@@ -365,7 +365,7 @@ const JoinPage = () => {
           clearInterval(pollingRef.current);
           clearInterval(timerRef.current);
           localStorage.removeItem('answered_slides');
-          setPhase(PHASES.WAITING);
+          setPhase(PHASES.ENDED);
         }
       } catch { }
     };
@@ -375,7 +375,6 @@ const JoinPage = () => {
     return () => clearInterval(pollingRef.current);
   }, [sessionId, phase, lastSlideId, fetchAndStartTimer]);
 
-  // Cleanup عند unmount
   useEffect(() => {
     return () => {
       clearInterval(pollingRef.current);
@@ -547,8 +546,6 @@ const JoinPage = () => {
         const options = getOptions();
         return (
           <div style={{ width: '100%', maxWidth: 480, display: 'flex', flexDirection: 'column', gap: 14 }}>
-
-            {/* Header: المؤقت + النوع */}
             <div style={{
               display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
               background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,.06)',
@@ -565,7 +562,6 @@ const JoinPage = () => {
               </div>
             </div>
 
-            {/* نص السؤال */}
             <div style={{
               background: '#fff', borderRadius: 18, padding: '20px 24px',
               boxShadow: '0 4px 16px rgba(0,0,0,.06)', borderTop: `4px solid ${accentColor}`,
@@ -575,7 +571,6 @@ const JoinPage = () => {
               </p>
             </div>
 
-            {/* الخيارات */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: layoutMode === 'list' ? '1fr' : '1fr 1fr',
@@ -590,7 +585,6 @@ const JoinPage = () => {
               ))}
             </div>
 
-            {/* بانر "انتهى الوقت" */}
             {timesUp && (
               <div style={{
                 background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 12,
@@ -617,6 +611,34 @@ const JoinPage = () => {
         @keyframes dotBounce{0%,80%,100%{transform:scale(.5);opacity:.4;}40%{transform:scale(1.2);opacity:1;}}
         @keyframes spin{to{transform:rotate(360deg);}}
       `}</style>
+      {/* [6] ENDED */}
+{phase === PHASES.ENDED && (
+  <div style={S.card}>
+    <div style={{
+      width: 80, height: 80, borderRadius: '50%',
+      background: 'linear-gradient(135deg,#f97316,#ea580c)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      marginBottom: 8,
+    }}>
+      <Trophy size={36} color="#fff" />
+    </div>
+    <h1 style={S.title}>Session Ended</h1>
+    <p style={S.sub}>Thank you for participating!</p>
+    <div style={{
+      width: '100%', padding: '16px',
+      background: 'linear-gradient(135deg,#fff7ed,#ffedd5)',
+      border: '1px solid #fed7aa', borderRadius: 16,
+      textAlign: 'center',
+    }}>
+      <div style={{ fontSize: 13, color: '#92400e', fontWeight: 600 }}>
+         Great job! See you next time.
+      </div>
+    </div>
+    <button style={S.btnP} onClick={() => navigate('/')}>
+      Back to Home <ChevronRight size={18} />
+    </button>
+  </div>
+)}
     </div>
   );
 };
@@ -626,24 +648,24 @@ const S = {
     minHeight: '100dvh',
     background: 'linear-gradient(160deg,#fff7ed 0%,#ffffff 50%,#fff7ed 100%)',
     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-    padding: '70px 16px 32px', fontFamily: "'Plus Jakarta Sans','Segoe UI',sans-serif",
+    padding: '70px 12px 32px', fontFamily: "'Plus Jakarta Sans','Segoe UI',sans-serif",
   },
   logo: { position: 'fixed', top: 16, left: 20, zIndex: 10 },
   card: {
-    width: '100%', maxWidth: 400, background: '#fff', borderRadius: 24, padding: '36px 28px',
+    width: '100%', maxWidth: 400, background: '#fff', borderRadius: 24, padding: '32px 20px',
     boxShadow: '0 20px 60px rgba(249,115,22,.1),0 4px 20px rgba(0,0,0,.06)',
     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16,
     animation: 'fadeUp .4s ease',
   },
   title: { fontSize: 22, fontWeight: 900, color: '#1e293b', textAlign: 'center', lineHeight: 1.3 },
   sub: { fontSize: 14, color: '#94a3b8', textAlign: 'center', lineHeight: 1.6 },
-  codeRow: { display: 'flex', alignItems: 'center', gap: 6, margin: '4px 0' },
+  codeRow: { display: 'flex', alignItems: 'center', gap: 4, margin: '4px 0' },
   codeBox: {
-    width: 46, height: 58, borderRadius: 12, border: '2.5px solid',
-    textAlign: 'center', fontSize: 24, fontWeight: 900,
+    width: 'clamp(36px, 11vw, 46px)', height: 'clamp(48px, 13vw, 58px)', borderRadius: 12, border: '2.5px solid',
+    textAlign: 'center', fontSize: 'clamp(18px, 5vw, 24px)', fontWeight: 900,
     fontFamily: 'monospace', transition: 'all .2s', cursor: 'text',
   },
-  codeSep: { fontSize: 22, color: '#e2e8f0', fontWeight: 700 },
+  codeSep: { fontSize: 'clamp(16px, 4vw, 22px)', color: '#e2e8f0', fontWeight: 700 },
   nameInput: {
     width: '100%', padding: '14px 48px 14px 16px', borderRadius: 14,
     border: '2px solid #e2e8f0', fontSize: 15, color: '#1e293b',

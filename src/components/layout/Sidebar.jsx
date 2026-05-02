@@ -1,12 +1,10 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-// أضفنا أيقونة X هنا للإغلاق
 import { LayoutDashboard, Presentation, FileText, Archive, Settings, LogOut, X } from 'lucide-react'; 
 import logo from '../../assets/logo.png';
 
 const Sidebar = ({ isSidebarOpen, setSidebarOpen, handleLogout }) => {
   
-  // دالة صغيرة لإغلاق المنيو عند الضغط على رابط (تستخدم في الموبايل فقط)
   const closeMobileMenu = () => {
     if (window.innerWidth <= 768) {
       setSidebarOpen(false);
@@ -21,7 +19,6 @@ const Sidebar = ({ isSidebarOpen, setSidebarOpen, handleLogout }) => {
           <img src={logo} alt="SADA" />
         </div>
         
-        {/* زر الإغلاق: يظهر فقط في الشاشات الصغيرة عبر CSS */}
         <button className="mobile-close-btn" onClick={() => setSidebarOpen(false)}>
           <X size={24} />
         </button>
@@ -62,7 +59,7 @@ const Sidebar = ({ isSidebarOpen, setSidebarOpen, handleLogout }) => {
         </NavLink>
 
         <NavLink 
-          to="/dashboard/settings" 
+          to="/dashboard/preferences" 
           className="nav-item"
           onClick={closeMobileMenu}
         >

@@ -19,9 +19,8 @@ import DisplayPage from './pages/DisplayPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import PublicRoute from './components/auth/PublicRoute'; // هذا هو المكون الجديد
 
-// مكونات وهمية مؤقتة
-const Archive = () => <div className="p-8"><h1>صفحة الأرشيف</h1></div>;
-const Settings = () => <div className="p-8"><h1>صفحة الإعدادات</h1></div>;
+import Archive from './pages/Archive';
+import Preferences from './pages/Preferences';
 
 function App() {
   return (
@@ -63,7 +62,7 @@ function App() {
           <Route path="presentations" element={<Presentations />} />
           <Route path="templates" element={<Templates />} />
           <Route path="archive" element={<Archive />} />
-          <Route path="settings" element={<Settings />} />
+          <Route path="preferences" element={<Preferences />} />
         </Route>
 
         {/* 4. مسار المحرر (محمي وخارج نطاق السايدبار) */}
